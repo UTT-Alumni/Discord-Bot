@@ -3,6 +3,7 @@ from xmlrpc.client import SERVER_ERROR
 
 import discord
 from discord.ui import InputText, Modal
+from discord.ext import commands
 
 from dotenv import load_dotenv
 
@@ -14,13 +15,20 @@ bot = discord.Bot()
 
 servers = [SERVER_ID]
 
+intents = discord.Intents.default()
+intents.members = True
+
+bot = commands.Bot(intents=intents)
+
 @bot.event
 async def on_ready():
     print(f"We have logged in as {bot.user}")
 
 @bot.event
 async def on_member_join(member):
-  print("Hello")
+  channel = member.guild.system_channel
+  if channel is not None:
+    await test(channel)
 
 
 class MyModal(Modal):
@@ -44,7 +52,7 @@ class MyModal(Modal):
         await self.user.edit(nick=userFirstName+" "+userName+" - "+userYear+" "+userBranch)
         var = discord.utils.get(self.user.guild.roles, name = ROLE_TO_ATTRIBUTE)
         await self.user.add_roles(var)
-        await interaction.response.send_message(content="Bienvenue "+userFirstName+" "+userName+" sur le serveur UTT Alumni.", ephemeral=True, delete_after=5)
+        await interaction.response.send_message(content="Bienvenue "+userFirstName+" "+userName+" sur le serveur UTT Alumni.", ephemeral=True)
         
 
 @bot.slash_command(guild_ids = servers, name= "modal")
