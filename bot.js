@@ -10,15 +10,10 @@ const {
 
 require('dotenv').config()
 
-const messages = require('./messages.json')
-
 const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
-    // GatewayIntentBits.GuildMembers,
-    // GatewayIntentBits.GuildMembers,
-    GatewayIntentBits.GuildMembers,
-    // GatewayIntentBits.MessageContent
+    GatewayIntentBits.GuildMessageReactions
   ],
 })
 
@@ -47,11 +42,11 @@ const graduationYearComponent = new ActionRowBuilder().addComponents(new TextInp
   .setRequired(true))
 const educationComponent = new ActionRowBuilder().addComponents(new TextInputBuilder()
   .setCustomId('education')
-  .setLabel('Branche')
+  .setLabel('Branche ou Poste UTT')
   .setStyle('Short')
   .setMinLength(2)
   .setMaxLength(5)
-  .setPlaceholder('Branche ingénieur, master ou doctorat')
+  .setPlaceholder('Branche, master ou doctorat, poste...')
   .setRequired(true))
 
 modal.addComponents([
@@ -64,24 +59,6 @@ async function createForm(interaction) {
   await interaction.showModal(modal)
 }
 
-async function onUserAdded(member) {
-  // Generates the name of the channel according to channelID provided in config.json file
-  const channel = client.channels.cache.get(process.env.CHANNEL_ID)
-
-  // Sends custom message mentioning the user and adds rules provided in config.json file
-  const row = new ActionRowBuilder().addComponents(
-    new ButtonBuilder()
-      .setCustomId('primary')
-      .setLabel('Je me présente !')
-      .setStyle(ButtonStyle.Primary),
-  )
-  // Private message TODO: Maybe not use this
-  await channel.send({
-    content: messages.fr.welcome,
-    components: [row],
-    ephemeral: true,
-  })
-}
 /**
  * Validate the modal
  *
@@ -116,12 +93,54 @@ async function onModalSubmit(interaction) {
 }
 
 const start = async () => {
-  client.on('ready', () => {
-    console.log(`Logged in as ${client.user.tag}!`)
-    client.user.setActivity('for new users to join', { type: 'WATCHING' })
+  client.on('ready', async () => {
+    console.log(`UTT Alumni Discord bot logged in as ${client.user.tag}!`)
+    const guild = await client.guilds.fetch(process.env.SERVER_ID)
+    console.log(`Discord guild ${process.env.SERVER_ID} retrieved.`)
+    const channel = await guild.channels.fetch(process.env.CHANNEL_ID)
+    console.log(`Discord channel ${process.env.CHANNEL_ID} retrieved.`)
+    const channelMessages = await channel.messages.fetch()
+
+    console.log(`Fetch ${channelMessages.size} messages on channel ${process.env.CHANNEL_ID}.`)
+
+    if(channelMessages.size > 1) {
+      console.log('Discord server already set with a welcome message.')
+    } else {
+      console.log('Sending the welcome message to the Discord channel.')
+
+      // Sends custom message mentioning the user and adds rules provided in config.json file
+      const row = new ActionRowBuilder().addComponents(
+          new ButtonBuilder()
+              .setCustomId('primary')
+              .setLabel('J\'accepte le règlement')
+              .setStyle(ButtonStyle.Primary),
+      )
+      await channel.send({
+        content: '**Bienvenue sur le Discord officiel du réseau des alumni de l’UTT !**\r\n\r\n' +
+            'Ce serveur vise à servir de lieu d’échanges informels entre les alumni, étudiants et personnels de ' +
+            'l\'Université de Technologie de Troyes.\r\n\r\n' +
+            'Deux règles permettent de fournir un espace de discussion sécurisé pour toutes et tous, et en garantissant ' +
+            'la liberté d’expression de chacun :\r\n ' +
+            '**1. Sont sanctionnés d’un kick immédiat (précédé d’un message personnel expliquant les raisons), ' +
+            'puis d’un bannissement complet en cas de récidive, par les modérateur.ice.s :**\r\n ' +
+            '    -Les propos ouvertement racistes, sexistes et toutes autres formes de discriminations ;\r\n' +
+            '    -Les contenus violents, pornographiques, etc. ;\r\n' +
+            '    -La publication des informations personnelles, privées ou non, d’un.e membre du serveur, sans l’accord ' +
+            'préalable de la personne concernée.\r\n' +
+            '**2. Sont sanctionnés d’un avertissement public par les modérateur.ice.s, d’un kick en cas de récidive, ' +
+            'puis si nécessaire d’un bannissement complet par les modérateur.ice.s :**\r\n' +
+            '    -Les floods, spams, et autre interventions dérangeant la quiétude du serveur ;\r\n' +
+            '    -Les publicités, notamment commerciales, sans autorisation préalable. Cette autorisation est fournie par ' +
+            'au moins 5 likes par n’importe quel.le.s membres, sur un post présentant rapidement le contenu de la publicité.\r\n\r\n' +
+            'En cliquant sur le bouton ci-après vous acceptez le règlement et renseignez des informations relatives à votre ' +
+            'passage à l\'UTT.\r\n' +
+            'Aucune information personnelle n\'est stockée suite à cette procédure.',
+        components: [row],
+        ephemeral: false,
+      })
+    }
   })
 
-  client.on('guildMemberAdd', onUserAdded)
 
   client.on('interactionCreate', async (interaction) => {
     if (interaction.isButton()) {
