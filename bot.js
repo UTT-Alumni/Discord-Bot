@@ -23,49 +23,56 @@ const start = async () => {
 
   const client = new Client({ intents: [] })
   client.on(Events.ClientReady, async () => {
-    console.info(`UTT Alumni Discord bot logged in as ${client.user.tag}!`)
-    const guild = await client.guilds.fetch(botConfig.server)
-    console.info(`Discord guild ${botConfig.server} retrieved.`)
-    const channel = await guild.channels.fetch(botConfig.channel)
-    console.info(`Discord channel ${botConfig.channel} retrieved.`)
-    const channelMessages = await channel.messages.fetch()
-
-    console.info(`Fetch ${channelMessages.size} messages on channel ${botConfig.channel}.`)
-
-    if (channelMessages.size > 0) {
-      console.info('Discord server already set with a welcome message.')
-    } else {
-      console.info('Sending the welcome message to the Discord channel.')
-
-      const validationButton = new ButtonBuilder()
-        .setCustomId('primary')
-        .setLabel(botConfig.accept)
-        .setStyle(ButtonStyle.Primary)
-      // Sends custom message mentioning the user and adds rules provided in config.json file
-      const row = new ActionRowBuilder().addComponents(validationButton)
-      await channel.send({
-        content: botConfig.rules,
-        components: [row],
-        ephemeral: false,
-      })
+    try {
+      console.info(`UTT Alumni Discord bot logged in as ${client.user.tag}!`)
+      const guild = await client.guilds.fetch(botConfig.server)
+      console.info(`Discord guild ${botConfig.server} retrieved.`)
+      const channel = await guild.channels.fetch(botConfig.channel)
+      console.info(`Discord channel ${botConfig.channel} retrieved.`)
+      const channelMessages = await channel.messages.fetch()
+      console.info(`Fetch ${channelMessages.size} messages on channel ${botConfig.channel}.`)
+      if (channelMessages.size > 0) {
+        console.info('Discord server already set with a welcome message.')
+      } else {
+        console.info('Sending the welcome message to the Discord channel.')
+        const validationButton = new ButtonBuilder()
+          .setCustomId('primary')
+          .setLabel(botConfig.accept)
+          .setStyle(ButtonStyle.Primary)
+        // Sends custom message mentioning the user and adds rules provided in config.json file
+        const row = new ActionRowBuilder().addComponents(validationButton)
+        await channel.send({
+          content: botConfig.rules,
+          components: [row],
+          ephemeral: false,
+        })
+      }
+    } catch (err) {
+      console.error(err)
     }
   })
 
   client.on(Events.InteractionCreate, async (interaction) => {
-    if (interaction.channelId !== botConfig.channel) {
-      return
-    }
-
-    if (interaction.isButton()) {
-      const modal = await createModal(botConfig.modal)
-      await interaction.showModal(modal)
-    }
-    if (interaction.isModalSubmit()) {
-      await onModalSubmit(interaction, botConfig.role, botConfig.welcome)
+    try {
+      if (interaction.channelId !== botConfig.channel) {
+        return
+      }
+      if (interaction.isButton()) {
+        const modal = await createModal(botConfig.modal)
+        await interaction.showModal(modal)
+      }
+      if (interaction.isModalSubmit()) {
+        await onModalSubmit(interaction, botConfig.role, botConfig.welcome)
+      }
+    } catch (err) {
+      console.error(err)
     }
   })
-
-  await client.login(botConfig.token)
+  try {
+    await client.login(botConfig.token)
+  } catch (err) {
+    console.error(err)
+  }
 }
 
 start().then(() => {
