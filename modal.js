@@ -2,6 +2,7 @@ const { ModalBuilder, ActionRowBuilder, TextInputBuilder } = require('discord.js
 
 /**
  * Create a modal to ask user information
+ * @param {String} title - The modal title
  * @param {String} firstNameLabel - The first name field label
  * @param {String} firstNamePlaceholder - The first name placeholder
  * @param {String} familyNameLabel - The family name field label
@@ -14,6 +15,7 @@ const { ModalBuilder, ActionRowBuilder, TextInputBuilder } = require('discord.js
  */
 const createModal = async (
   {
+    title,
     firstNameLabel,
     firstNamePlaceholder,
     familyNameLabel,
@@ -24,7 +26,7 @@ const createModal = async (
     educationPlaceholder,
   },
 ) => {
-  const modal = new ModalBuilder().setCustomId('utt-alumni-bot-id').setTitle('Modal')
+  const modal = new ModalBuilder().setCustomId('utt-alumni-bot-id').setTitle(title)
 
   const firstNameComponent = new ActionRowBuilder().addComponents(new TextInputBuilder()
     .setCustomId('firstName')
@@ -72,36 +74,29 @@ const createModal = async (
  * @param {String} roleId - The role to add to the user
  * @return {void}
  */
-async function onModalSubmit(interaction, roleId, welcomeMessage) {
+async function onModalSubmit(interaction, roleId) {
   if (interaction.customId === 'utt-alumni-bot-id') {
     const firstName = interaction.fields.getTextInputValue('firstName')
-    const name = interaction.fields.getTextInputValue('name')
+    const familyName = interaction.fields.getTextInputValue('name')
     const graduationYear = interaction.fields.getTextInputValue('graduationYear')
     const education = interaction.fields.getTextInputValue('education')
 
-    let fullName = `${firstName} ${name} - ${graduationYear} ${education}`
-    // Check if the full name can be handled by discord
-    if (fullName.length > 32) {
-      let toReduce = fullName.length - 31 // Because the name will have "."
-      let newName = name.slice(0, name.length - toReduce + 1)
-      let newFirstName = firstName
-      // If the name reduction is not enough
-      if (name.length - toReduce < 0) {
-        toReduce -= name.length + 1 // Because the firstname will have a "."
-        newName = `${name.slice(0, 1)}`
-        newFirstName = `${firstName.slice(0, firstName.length - toReduce)}.`
-      }
-      fullName = `${newFirstName} ${newName}. - ${graduationYear} ${education}`
+    const separatorLength = 5 // spaces and dash
+    const suffixLength = graduationYear.length + education.length
+    const fullNameLength = firstName.length + familyName.length
+    if (separatorLength + suffixLength + fullNameLength > 32) {
+      await interaction.member.setNickname(`${firstName} ${familyName.charAt(0).toUpperCase()}. - ${graduationYear} ${education}`)
+    } else {
+      await interaction.member.setNickname(`${firstName} ${familyName.toUpperCase()} - ${graduationYear} ${education}`)
     }
-    await interaction.member.setNickname(fullName)
+
     const roles = await interaction.member.guild.roles.fetch()
     const myRole = roles.find((role) => role.id === roleId)
     if (!myRole) {
       console.warn(`Role ${roleId} not found. Check you have the correct id.`)
       return
     }
-    interaction.member.roles.add(myRole.id)
-    interaction.reply({ content: welcomeMessage, ephemeral: true })
+    await interaction.member.roles.add(myRole.id)
   }
 }
 

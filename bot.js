@@ -62,7 +62,8 @@ const start = async () => {
         await interaction.showModal(modal)
       }
       if (interaction.isModalSubmit()) {
-        await onModalSubmit(interaction, botConfig.role, botConfig.welcome)
+        await onModalSubmit(interaction, botConfig.role)
+        await interaction.reply({ content: botConfig.welcome, ephemeral: true })
       }
     } catch (err) {
       console.error(err)
