@@ -61,7 +61,7 @@ const start = async () => {
       await interaction.showModal(modal)
     }
     if (interaction.isModalSubmit()) {
-      await onModalSubmit(interaction, botConfig.role)
+      await onModalSubmit(interaction, botConfig.role, botConfig.welcome)
     }
   })
 

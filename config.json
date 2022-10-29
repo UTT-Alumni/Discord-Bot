@@ -5,7 +5,7 @@
   "role": "my_role_id",
   "rules": "Rules message",
   "accept": "Accept",
-  "welcome": "",
+  "welcome": "Welcome !",
   "modal": {
     "firstNameLabel": "First name",
     "firstNamePlaceholder": "Your first name",

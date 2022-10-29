@@ -72,7 +72,7 @@ const createModal = async (
  * @param {String} roleId - The role to add to the user
  * @return {void}
  */
-async function onModalSubmit(interaction, roleId) {
+async function onModalSubmit(interaction, roleId, welcomeMessage) {
   if (interaction.customId === 'utt-alumni-bot-id') {
     const firstName = interaction.fields.getTextInputValue('firstName')
     const name = interaction.fields.getTextInputValue('name')
@@ -101,6 +101,7 @@ async function onModalSubmit(interaction, roleId) {
       return
     }
     interaction.member.roles.add(myRole.id)
+    interaction.reply({ content: welcomeMessage, ephemeral: true })
   }
 }
 
