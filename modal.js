@@ -97,6 +97,10 @@ async function onModalSubmit(interaction, roleId) {
     const myRole = interaction.member.guild.roles.cache.find(
       (role) => role.id === roleId,
     )
+    if (!myRole) {
+      console.warn(`Role ${roleId} not found. Check you have the correct id.`)
+      return
+    }
     interaction.member.roles.add(myRole.id)
   }
 }
