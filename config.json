@@ -1,0 +1,8 @@
+{
+  "token": "my_token",
+  "server": "my_server_id",
+  "channel": "my_channel_id",
+  "role": "my_role_id",
+  "rules": "**Bienvenue sur le Discord officiel du réseau des alumni de l’UTT !**\r\n\r\nCe serveur vise à servir de lieu d’échanges informels entre les alumni, étudiants et personnels de l'Université de Technologie de Troyes.\r\n\r\nDeux règles permettent de fournir un espace de discussion sécurisé pour toutes et tous, et en garantissant la liberté d’expression de chacun :\r\n**1. Sont sanctionnés d’un kick immédiat (précédé d’un message personnel expliquant les raisons), puis d’un bannissement complet en cas de récidive, par les modérateur.ice.s :**\r\n\t-Les propos ouvertement racistes, sexistes et toutes autres formes de discriminations ;\r\n\t-Les contenus violents, pornographiques, etc. ;\r\n\t-La publication des informations personnelles, privées ou non, d’un.e membre du serveur, sans l’accord préalable de la personne concernée.\r\n**2. Sont sanctionnés d’un avertissement public par les modérateur.ice.s, d’un kick en cas de récidive puis si nécessaire d’un bannissement complet par les modérateur.ice.s :**\r\n\t-Les floods, spams, et autre interventions dérangeant la quiétude du serveur ;\r\n\t-Les publicités, notamment commerciales, sans autorisation préalable. Cette autorisation est fournie par au moins 5 likes par n’importe quel.le.s membres, sur un post présentant rapidement le contenu de la publicité.\r\n\r\nEn cliquant sur le bouton ci-après vous acceptez le règlement et renseignez des informations relatives à votre passage à l'UTT.\r\nAucune information personnelle n'est stockée suite à cette procédure.",
+  "welcome": ""
+}

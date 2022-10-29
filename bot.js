@@ -1,3 +1,4 @@
+const fs = require('node:fs/promises')
 const {
   Client,
   GatewayIntentBits,
@@ -9,6 +10,7 @@ const {
 } = require('discord.js')
 
 require('dotenv').config()
+
 
 const client = new Client({
   intents: [
@@ -93,15 +95,18 @@ async function onModalSubmit(interaction) {
 }
 
 const start = async () => {
+  const configContent = await fs.readFile(process.argv[3], 'utf8')
+  const botConfig = JSON.parse(configContent)
+
   client.on('ready', async () => {
     console.log(`UTT Alumni Discord bot logged in as ${client.user.tag}!`)
-    const guild = await client.guilds.fetch(process.env.SERVER_ID)
-    console.log(`Discord guild ${process.env.SERVER_ID} retrieved.`)
-    const channel = await guild.channels.fetch(process.env.CHANNEL_ID)
-    console.log(`Discord channel ${process.env.CHANNEL_ID} retrieved.`)
+    const guild = await client.guilds.fetch(botConfig.server)
+    console.log(`Discord guild ${botConfig.server} retrieved.`)
+    const channel = await guild.channels.fetch(botConfig.channel)
+    console.log(`Discord channel ${botConfig.channel} retrieved.`)
     const channelMessages = await channel.messages.fetch()
 
-    console.log(`Fetch ${channelMessages.size} messages on channel ${process.env.CHANNEL_ID}.`)
+    console.log(`Fetch ${channelMessages.size} messages on channel ${botConfig.channel}.`)
 
     if(channelMessages.size > 1) {
       console.log('Discord server already set with a welcome message.')
@@ -116,31 +121,12 @@ const start = async () => {
               .setStyle(ButtonStyle.Primary),
       )
       await channel.send({
-        content: '**Bienvenue sur le Discord officiel du réseau des alumni de l’UTT !**\r\n\r\n' +
-            'Ce serveur vise à servir de lieu d’échanges informels entre les alumni, étudiants et personnels de ' +
-            'l\'Université de Technologie de Troyes.\r\n\r\n' +
-            'Deux règles permettent de fournir un espace de discussion sécurisé pour toutes et tous, et en garantissant ' +
-            'la liberté d’expression de chacun :\r\n ' +
-            '**1. Sont sanctionnés d’un kick immédiat (précédé d’un message personnel expliquant les raisons), ' +
-            'puis d’un bannissement complet en cas de récidive, par les modérateur.ice.s :**\r\n ' +
-            '    -Les propos ouvertement racistes, sexistes et toutes autres formes de discriminations ;\r\n' +
-            '    -Les contenus violents, pornographiques, etc. ;\r\n' +
-            '    -La publication des informations personnelles, privées ou non, d’un.e membre du serveur, sans l’accord ' +
-            'préalable de la personne concernée.\r\n' +
-            '**2. Sont sanctionnés d’un avertissement public par les modérateur.ice.s, d’un kick en cas de récidive, ' +
-            'puis si nécessaire d’un bannissement complet par les modérateur.ice.s :**\r\n' +
-            '    -Les floods, spams, et autre interventions dérangeant la quiétude du serveur ;\r\n' +
-            '    -Les publicités, notamment commerciales, sans autorisation préalable. Cette autorisation est fournie par ' +
-            'au moins 5 likes par n’importe quel.le.s membres, sur un post présentant rapidement le contenu de la publicité.\r\n\r\n' +
-            'En cliquant sur le bouton ci-après vous acceptez le règlement et renseignez des informations relatives à votre ' +
-            'passage à l\'UTT.\r\n' +
-            'Aucune information personnelle n\'est stockée suite à cette procédure.',
+        content: botConfig.rules,
         components: [row],
         ephemeral: false,
       })
     }
   })
-
 
   client.on('interactionCreate', async (interaction) => {
     if (interaction.isButton()) {
@@ -151,7 +137,7 @@ const start = async () => {
     }
   })
 
-  await client.login(process.env.DISCORD_TOKEN)
+  await client.login(botConfig.token)
 }
 
 start().then(() => {
