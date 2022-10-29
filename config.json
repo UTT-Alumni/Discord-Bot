@@ -6,6 +6,7 @@
   "rules": "Rules message",
   "accept": "Accept",
   "welcome": "Welcome !",
+  "error": "An error occurred.",
   "modal": {
     "title": "Introduce yourself",
     "firstNameLabel": "First name",

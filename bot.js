@@ -67,6 +67,7 @@ const start = async () => {
       }
     } catch (err) {
       console.error(err)
+      await interaction.reply({ content: botConfig.error, ephemeral: true })
     }
   })
   try {
