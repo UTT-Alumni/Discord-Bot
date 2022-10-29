@@ -7,6 +7,7 @@
   "accept": "Accept",
   "welcome": "Welcome !",
   "modal": {
+    "title": "Introduce yourself",
     "firstNameLabel": "First name",
     "firstNamePlaceholder": "Your first name",
     "familyNameLabel": "Family name",
