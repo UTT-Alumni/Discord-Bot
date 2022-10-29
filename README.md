@@ -27,7 +27,7 @@ To set up the bot, edit the config.json file:
 - role: the role to add to the user once he accepts the rules and submits the modal. In the role list, right-click on the role and copy its ID.
 
 ### Discord server settings
-Thi bot gives permissions to other users. Discord has a non-intuitive way of allowing permissions. The role
+This bot gives permissions to other users. Discord has a non-intuitive way of allowing permissions. The role
 of the bot must be in a higher position in the role list than the role it will give.
 
 For example, if the bot has the role "bot-role", and that the roles "role1", "role2" and "role3"
@@ -35,7 +35,23 @@ exist, and if the bot gives the role2 role to the user, the bot-role must be abo
 
 ![Role list](assets/role-list.png)
 
+### Permissions
+This bot need the following permissions:
+- General
+  - Manage Nicknames (to update users' nickname)
+  - Read Messages/View Channels (to check if the welcome message has already been sent)
+  - Manage roles (to add a role to a user)
+- Text Permissions
+  - Send Messages
+  - Embed Links
+  - Read Message History (to retrieve previous message of the channel where to write the welcome message if needed)
 
+It can be added by accessing this URL:
+[https://discord.com/api/oauth2/authorize?client_id=1035919632810381442&permissions=402738176&scope=bot](https://discord.com/api/oauth2/authorize?client_id=1035919632810381442&permissions=402738176&scope=bot)
+
+It will ask you on which server you want to set the bot. Be sure to have the appropriate permissions to do so.
+
+Once set, give the appropriate permissions to the bot on the channel you want to use. See [this part](#discord-server-settings).
 
 ## Develop
 To run the bot:
