@@ -1,5 +1,5 @@
-# Discord-Bot
-The best discord bot ever to manage user onboarding.
+# Boarding Duck
+The best discord bot ever to manage newcomers on a Discord server.
 
 ## Details
 The bot display the rules on an empty channel. If the channel is not empty,
@@ -38,9 +38,9 @@ exist, and if the bot gives the role2 role to the user, the bot-role must be abo
 ### Permissions
 This bot need the following permissions:
 - General
+  - Manage Roles (to add a role to a user)
   - Manage Nicknames (to update users' nickname)
   - Read Messages/View Channels (to check if the welcome message has already been sent)
-  - Manage roles (to add a role to a user)
 - Text Permissions
   - Send Messages
   - Embed Links
@@ -57,3 +57,33 @@ Once set, give the appropriate permissions to the bot on the channel you want to
 To run the bot:
 - `npm install`
 - `npm start` or `npm run start-dev` for loading a local `config-dev.json` file.
+
+## Install the bot as a service
+Create a service file (for example `/etc/systemd/system/boarding-duck.service`):
+
+```
+[Unit]
+Description=Boarding duck
+After=network.target
+StartLimitIntervalSec=0[Service]
+Type=simple
+Restart=always
+RestartSec=1
+ExecStart=node /path/to/boarding-duck/bot.js
+
+[Install]
+WantedBy=multi-user.target
+```
+
+You must change the ExecStart field.
+
+To start the service:
+`systemctl start boarding-duck`
+
+To automatically start the service at system boot:
+`systemctl enable boarding-duck`
+
+To access the service logs:
+`journalctl -u boarding-duck -n 200 -f`
+
+
