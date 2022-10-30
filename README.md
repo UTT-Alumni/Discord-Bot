@@ -65,17 +65,21 @@ Create a service file (for example `/etc/systemd/system/boarding-duck.service`):
 [Unit]
 Description=Boarding duck
 After=network.target
-StartLimitIntervalSec=0[Service]
+StartLimitIntervalSec=0
+
+[Service]
 Type=simple
 Restart=always
 RestartSec=1
-ExecStart=node /path/to/boarding-duck/bot.js
+ExecStart=node /path/to/boarding-duck/bot.js --config /path/to/boarding-duck/config.json
 
 [Install]
 WantedBy=multi-user.target
 ```
 
 You must change the ExecStart field.
+
+Don't forget to install node dependencies beforehand.
 
 To start the service:
 `systemctl start boarding-duck`
