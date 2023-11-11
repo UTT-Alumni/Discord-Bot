@@ -18,7 +18,7 @@ const {
  * @returns {Promise<void>} - The promise to resolve when the bot is connected
  */
 const start = async () => {
-  const configContent = await fs.readFile(process.argv[3], 'utf8')
+  const configContent = await fs.readFile(process.argv[2], 'utf8')
   const botConfig = JSON.parse(configContent)
 
   const client = new Client({ intents: [] })
