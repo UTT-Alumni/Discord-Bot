@@ -4,8 +4,8 @@
   "description": "The best discord bot ever",
   "main": "src/bot.js",
   "scripts": {
-    "start": "node src/bot.js --config config.json",
-    "start-dev": "node src/bot.js --config config-dev.json",
+    "start": "node src/bot.js config.json",
+    "start-dev": "nodemon src/bot.js config-dev.json",
     "lint": "eslint . --fix"
   },
   "repository": {
@@ -27,6 +27,7 @@
     "@babel/eslint-parser": "7.23.3",
     "@babel/preset-env": "7.23.3",
     "eslint": "8.53.0",
-    "eslint-config-airbnb": "19.0.4"
+    "eslint-config-airbnb": "19.0.4",
+    "nodemon": "^3.0.1"
   }
 }
