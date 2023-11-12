@@ -1,0 +1,9 @@
+{
+  "extends": [
+    "config:base",
+    ":semanticCommitTypeAll(chore)"
+  ],
+  "baseBranches": ["main"],
+  "labels": ["dependencies"],
+  "lockFileMaintenance": { "enabled": true }
+}
