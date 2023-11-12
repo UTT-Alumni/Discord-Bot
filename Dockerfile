@@ -1,6 +1,6 @@
 FROM node:18
 
-COPY ./boarding-duck /home/boarding-duck
+COPY ./ /home/boarding-duck
 
 RUN apt-get update -yq \
 && apt-get autoremove \

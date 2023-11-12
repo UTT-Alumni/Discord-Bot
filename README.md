@@ -93,8 +93,9 @@ To access the service logs:
 
 ## Start the bot in a container
 
-1. Clone the project: `git clone https://github.com/adrienho/boarding-duck.git`
-2. Modify the environment variables in the `config.json` file
-3. Build the image: `docker build -t boardin-duck-image .`
-4. Start the container with the created image : `docker run -d --name boarding-duck boarding-duck-image`
-5. Enjoy !
+1. Clone the project: `git clone https://github.com/UTT-Alumni/boarding-duck.git`
+2. Go to the boarding-duck folder: `cd boarding-duck`
+3. Modify the environment variables in the `config.json` file
+4. Build the image: `docker build -t boarding-duck-image .`
+5. Start the container with the created image : `docker run -d --name boarding-duck boarding-duck-image`
+6. Enjoy !
