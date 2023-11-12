@@ -97,5 +97,5 @@ To access the service logs:
 2. Go to the boarding-duck folder: `cd boarding-duck`
 3. Modify the environment variables in the `config.json` file
 4. Build the image: `docker build -t boarding-duck-image .`
-5. Start the container with the created image : `docker run -d --name boarding-duck boarding-duck-image`
+5. Start the container with the created image : `docker run --restart always -d --name boarding-duck boarding-duck-image`
 6. Enjoy !
