@@ -2,10 +2,10 @@
   "name": "discord-bot",
   "version": "1.0.0",
   "description": "The best discord bot ever",
-  "main": "src/bot.js",
+  "main": "src/bot.ts",
   "scripts": {
-    "start": "node src/bot.js config.json",
-    "start-dev": "nodemon src/bot.js config-dev.json",
+    "start": "ts-node src/bot.ts config.json",
+    "start-dev": "ts-node-dev src/bot.ts config-dev.json",
     "lint": "eslint . --fix"
   },
   "repository": {
@@ -28,6 +28,8 @@
     "@babel/preset-env": "7.23.3",
     "eslint": "8.53.0",
     "eslint-config-airbnb": "19.0.4",
-    "nodemon": "^3.0.1"
+    "ts-node": "^10.9.1",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.3.2"
   }
 }
