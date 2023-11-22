@@ -1,6 +1,6 @@
 import { ModalBuilder, ActionRowBuilder, TextInputBuilder, GuildMember, ModalSubmitInteraction, TextInputStyle, GuildMemberRoleManager } from 'discord.js';
 
-import { BotConfig } from './types/botconfig';
+import { BotConfig } from './types';
 
 /**
  * Create a modal to ask user information

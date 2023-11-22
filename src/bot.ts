@@ -9,7 +9,7 @@ import {
   TextChannel,
 } from 'discord.js';
 
-import { BotConfig } from './types/botconfig';
+import { BotConfig } from './types';
 
 import {
   createModal,

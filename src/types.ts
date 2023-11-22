@@ -1,4 +1,4 @@
-export type BotConfig = {
+export interface BotConfig {
     server: string;
     channel: string;
     accept: string;
