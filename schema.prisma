@@ -1,0 +1,34 @@
+datasource db {
+  provider = "sqlite"
+  url      = "file:./db.sqlite"
+}
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "./prisma"
+}
+
+model Pole {
+  id               String     @id
+  name             String     @unique
+  roles_channel_id String
+  thematics        Thematic[]
+}
+
+model Thematic {
+  id         String    @id
+  name       String    @unique
+  poleId     String
+  pole       Pole      @relation(fields: [poleId], references: [id])
+  channel_id String
+  emoji      String
+  projects   Project[]
+}
+
+model Project {
+  id         String   @id
+  name       String   @unique
+  thematicId String
+  thematic   Thematic @relation(fields: [thematicId], references: [id])
+  channel_id String
+}

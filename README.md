@@ -55,8 +55,9 @@ Once set, give the appropriate permissions to the bot on the channel you want to
 
 ## Develop
 To run the bot:
-- `npm install`
-- `npm start` or `npm run start-dev` for loading a local `config-dev.json` file.
+- `npm install` to install dependencies
+- `npm run db:push` to generate Prisma client and create the SQLite database file
+- `npm start` or `npm run start-dev` for loading a local `config-dev.json` file and reloading every time a file change.
 
 ## Install the bot as a service
 Create a service file (for example `/etc/systemd/system/boarding-duck.service`):

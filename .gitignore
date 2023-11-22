@@ -131,4 +131,11 @@ dist
 .idea
 .vscode
 
+# Dev version config file
 config-dev.json
+
+# Generated Prisma client
+prisma/
+
+# SQLite database file
+db.sqlite
