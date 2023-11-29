@@ -9,32 +9,32 @@ generator client {
 }
 
 model Pole {
-  id               String     @id @default(uuid())
-  name             String     @unique
+  id             String     @id @default(uuid())
+  name           String     @unique
   rolesChannelId String
-  thematics        Thematic[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  thematics      Thematic[]
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
 }
 
 model Thematic {
-  id         String    @id @default(uuid())
-  name       String    @unique
-  poleId     String
-  pole       Pole      @relation(fields: [poleId], references: [id])
-  emoji      String
+  id        String    @id @default(uuid())
+  name      String    @unique
+  poleId    String
+  pole      Pole      @relation(fields: [poleId], references: [id])
+  emoji     String
+  roleId    String
   channelId String
-  projects   Project[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  projects  Project[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 }
 
 model Project {
   id         String   @id @default(uuid())
-  name       String   @unique
   thematicId String
   thematic   Thematic @relation(fields: [thematicId], references: [id])
-  channelId String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  channelId  String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }
