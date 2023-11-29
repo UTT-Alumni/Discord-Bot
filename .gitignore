@@ -134,6 +134,9 @@ dist
 # Dev version config file
 config-dev.json
 
+# Commands deploy config file
+config-deploy.json
+
 # Generated Prisma client
 prisma/
 

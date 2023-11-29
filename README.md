@@ -59,6 +59,11 @@ To run the bot:
 - `npm run db:push` to generate Prisma client and create the SQLite database file
 - `npm start` or `npm run start-dev` for loading a local `config-dev.json` file and reloading every time a file change.
 
+## Deploy Discord bot commands
+To deploy the bot commands:
+- create a `config-deploy.json` file with `token`, `guildId` and `clientId` variables
+- run `npm run deploy:commands`
+
 ## Install the bot as a service
 Create a service file (for example `/etc/systemd/system/boarding-duck.service`):
 
