@@ -18,4 +18,4 @@ export interface BotConfig {
     welcome: string;
     error: string;
     token: string;
-};
+}

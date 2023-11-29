@@ -3,7 +3,7 @@ import {
   Pole as Pole_t,
   Thematic as Thematic_t,
   Project as Project_t,
-} from '../prisma';
+} from '../../prisma';
 
 const prisma = new PrismaClient();
 

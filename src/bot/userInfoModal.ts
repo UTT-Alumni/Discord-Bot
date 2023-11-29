@@ -1,4 +1,12 @@
-import { ModalBuilder, ActionRowBuilder, TextInputBuilder, GuildMember, ModalSubmitInteraction, TextInputStyle, GuildMemberRoleManager } from 'discord.js';
+import {
+  ModalBuilder,
+  ActionRowBuilder,
+  TextInputBuilder,
+  GuildMember,
+  ModalSubmitInteraction,
+  TextInputStyle,
+  GuildMemberRoleManager,
+} from 'discord.js';
 
 import { BotConfig } from './types';
 
@@ -7,8 +15,8 @@ import { BotConfig } from './types';
  * @param {ModalData} data - The modal data
  * @returns {Promise<ModalBuilder>} - The created modal
  */
-const createModal = async (data: BotConfig["modal"]): Promise<ModalBuilder> => {
-  const modal = new ModalBuilder().setCustomId('utt-alumni-bot-id').setTitle(data.title);
+const createModal = async (data: BotConfig['modal']): Promise<ModalBuilder> => {
+  const modal = new ModalBuilder().setCustomId('registerModal').setTitle(data.title);
 
   const firstNameComponent = new ActionRowBuilder().addComponents(new TextInputBuilder()
     .setCustomId('firstName')
@@ -48,7 +56,7 @@ const createModal = async (data: BotConfig["modal"]): Promise<ModalBuilder> => {
     educationComponent,
   ]);
   return modal;
-}
+};
 
 /**
  * Validate the modal
@@ -61,29 +69,27 @@ async function onModalSubmit(interaction: ModalSubmitInteraction, roleId: string
     return;
   }
 
-  if (interaction.customId === 'utt-alumni-bot-id') {
-    const firstName = interaction.fields.getTextInputValue('firstName');
-    const familyName = interaction.fields.getTextInputValue('name');
-    const graduationYear = interaction.fields.getTextInputValue('graduationYear');
-    const education = interaction.fields.getTextInputValue('education');
+  const firstName = interaction.fields.getTextInputValue('firstName');
+  const familyName = interaction.fields.getTextInputValue('name');
+  const graduationYear = interaction.fields.getTextInputValue('graduationYear');
+  const education = interaction.fields.getTextInputValue('education');
 
-    const separatorLength = 5; // spaces and dash
-    const suffixLength = graduationYear.length + education.length;
-    const fullNameLength = firstName.length + familyName.length;
-    if (separatorLength + suffixLength + fullNameLength > 32) {
-      await (interaction.member as GuildMember).setNickname(`${firstName} ${familyName.charAt(0).toUpperCase()}. - ${graduationYear} ${education}`);
-    } else {
-      await (interaction.member as GuildMember).setNickname(`${firstName} ${familyName.toUpperCase()} - ${graduationYear} ${education}`);
-    }
-
-    const roles = await (interaction.member as GuildMember).guild.roles.fetch();
-    const myRole = roles.find((role) => role.id === roleId);
-    if (!myRole) {
-      console.warn(`Role ${roleId} not found. Check you have the correct id.`);
-      return;
-    }
-    await (interaction.member.roles as GuildMemberRoleManager).add(myRole.id);
+  const separatorLength = 5; // spaces and dash
+  const suffixLength = graduationYear.length + education.length;
+  const fullNameLength = firstName.length + familyName.length;
+  if (separatorLength + suffixLength + fullNameLength > 32) {
+    await (interaction.member as GuildMember).setNickname(`${firstName} ${familyName.charAt(0).toUpperCase()}. - ${graduationYear} ${education}`);
+  } else {
+    await (interaction.member as GuildMember).setNickname(`${firstName} ${familyName.toUpperCase()} - ${graduationYear} ${education}`);
   }
+
+  const roles = await (interaction.member as GuildMember).guild.roles.fetch();
+  const myRole = roles.find((role) => role.id === roleId);
+  if (!myRole) {
+    console.warn(`Role ${roleId} not found. Check you have the correct id.`);
+    return;
+  }
+  await (interaction.member.roles as GuildMemberRoleManager).add(myRole.id);
 }
 
 export { createModal, onModalSubmit };
