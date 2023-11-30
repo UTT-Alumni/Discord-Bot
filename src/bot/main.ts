@@ -1,13 +1,11 @@
 import { promises as fs } from 'node:fs';
 
 import {
-  Client,
   ActionRowBuilder,
   ButtonBuilder,
   ButtonStyle,
   Events,
   TextChannel,
-  GatewayIntentBits,
   ChatInputCommandInteraction,
 } from 'discord.js';
 
@@ -19,6 +17,7 @@ import {
 } from './userInfoModal';
 
 import Pole from './pole';
+import Bot from './bot';
 
 /**
  * Start the discord bot client
@@ -29,16 +28,11 @@ const start = async (): Promise<void> => {
   const botConfig: BotConfig = JSON.parse(configContent);
 
   try {
-    const client: Client = new Client({
-      intents: [
-        GatewayIntentBits.Guilds,
-        GatewayIntentBits.GuildMessages,
-        GatewayIntentBits.GuildMessageReactions,
-      ],
-    });
-    client.on(Events.ClientReady, async (): Promise<void> => {
-      console.info(`UTT Alumni Discord bot logged in as ${client?.user?.tag}!`);
-      const guild = await client.guilds.fetch(botConfig.server);
+    const bot = Bot.get();
+
+    bot.on(Events.ClientReady, async (): Promise<void> => {
+      console.info(`UTT Alumni Discord bot logged in as ${bot?.user?.tag}!`);
+      const guild = await bot.guilds.fetch(botConfig.server);
       console.info(`Discord guild ${botConfig.server} retrieved.`);
       const channel = await guild.channels.fetch(botConfig.channel) as TextChannel;
       console.info(`Discord channel ${botConfig.channel} retrieved.`);
@@ -63,7 +57,7 @@ const start = async (): Promise<void> => {
       }
     });
 
-    client.on(Events.InteractionCreate, async (interaction): Promise<void> => {
+    bot.on(Events.InteractionCreate, async (interaction): Promise<void> => {
       try {
         // Bot commands
         if (interaction instanceof ChatInputCommandInteraction) {
@@ -103,7 +97,7 @@ const start = async (): Promise<void> => {
           }
 
           if (interaction.commandName === 'get') {
-            await interaction.reply({ content: await Pole.getFormatted(client), ephemeral: true });
+            await interaction.reply({ content: await Pole.getFormatted(bot), ephemeral: true });
           }
         }
 
@@ -126,7 +120,7 @@ const start = async (): Promise<void> => {
       }
     });
 
-    await client.login(botConfig.token);
+    await bot.login(botConfig.token);
   } catch (err) {
     console.error(err);
   }
