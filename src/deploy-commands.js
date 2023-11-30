@@ -62,7 +62,7 @@ const commands = [
       .setName('thematic')
       .setDescription('The thematic name as defined by the /getPoles command (it is not always the channel name).')
       .setRequired(true))
-    .addStringOption((option) => option
+    .addChannelOption((option) => option
       .setName('channel')
       .setDescription('The project channel.')
       .setRequired(true)),
