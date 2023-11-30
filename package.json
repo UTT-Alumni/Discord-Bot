@@ -9,6 +9,7 @@
     "lint": "eslint src/",
     "lint:fix": "eslint src/ --fix",
     "db:push": "prisma db push",
+    "db:format": "prisma format",
     "deploy:commands": "node src/deploy-commands.js"
   },
   "repository": {
