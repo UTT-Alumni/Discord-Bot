@@ -67,7 +67,7 @@ const start = async (): Promise<void> => {
 
             if (name && channelId) {
               await Pole.addPole(name, channelId);
-              await interaction.reply({ content: ':white_check_mark: Pôle ajouté.', ephemeral: true });
+              await interaction.reply({ content: ':white_check_mark: Pole added.', ephemeral: true });
             }
           }
 
@@ -80,7 +80,7 @@ const start = async (): Promise<void> => {
 
             if (poleName && name && emoji && roleId && channelId) {
               await (await Pole.getPole(poleName))?.addThematic(name, emoji, roleId, channelId);
-              await interaction.reply({ content: ':white_check_mark: Thématique ajoutée.', ephemeral: true });
+              await interaction.reply({ content: ':white_check_mark: Thematic added.', ephemeral: true });
             }
           }
 
@@ -92,7 +92,7 @@ const start = async (): Promise<void> => {
             if (poleName && thematicName && channelId) {
               const thematic = await (await Pole.getPole(poleName))?.getThematic(thematicName);
               await (thematic?.addProject(channelId));
-              await interaction.reply({ content: ':white_check_mark: Projet ajouté.', ephemeral: true });
+              await interaction.reply({ content: ':white_check_mark: Project added.', ephemeral: true });
             }
           }
 

@@ -48,7 +48,7 @@ class Pole {
       const rolesChannel = discordClient.channels.cache
         .find((channel) => channel.id === pole.rolesChannelId) as TextChannel;
       const categoryName = rolesChannel.parent?.name;
-      output += `Pôle : ${pole.name} (${categoryName}, ${rolesChannel.name})\n`;
+      output += `Pole : ${pole.name} (${categoryName}, ${rolesChannel.name})\n`;
 
       const thematics = await db.getPoleThematics(pole.id);
 
@@ -56,7 +56,7 @@ class Pole {
         const thematicChannel = discordClient.channels.cache
           .find((channel) => channel.id === thematic.channelId) as TextChannel;
 
-        output += `  | Thématique : ${thematic.name} (${thematicChannel.name})\n`;
+        output += `  | Thematic : ${thematic.name} (${thematicChannel.name})\n`;
 
         const projects = await db.getThematicProjects(thematic.id);
 
@@ -64,12 +64,12 @@ class Pole {
           const projectChannel = discordClient.channels.cache
             .find((channel) => channel.id === project.channelId) as TextChannel;
 
-          output += `  |   | Projet : (${projectChannel.name})\n`;
+          output += `  |   | Project : (${projectChannel.name})\n`;
         }
       }
     }
 
-    return output ? `\`\`\`${output}\`\`\`` : 'Aucun pole défini.';
+    return output ? `\`\`\`${output}\`\`\`` : 'No pole defined.';
   };
 
   public addThematic = async (
