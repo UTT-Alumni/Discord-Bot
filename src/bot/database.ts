@@ -71,6 +71,19 @@ const getPoleThematics = async (poleId: Pole_t['id']) => {
   return thematics;
 };
 
+const getThematicRoleId = async (thematicId: Thematic_t['id']) => {
+  const thematic = await prisma.thematic.findUnique({
+    select: {
+      roleId: true,
+    },
+    where: {
+      id: thematicId,
+    },
+  });
+
+  return thematic?.roleId;
+};
+
 const createProject = async (
   thematicId: Project_t['thematicId'],
   channelId: Project_t['channelId'],
@@ -97,6 +110,6 @@ const getThematicProjects = async (thematicId: Thematic_t['id']) => {
 
 export {
   createPole, getPole, getPoles,
-  createThematic, getPoleThematic, getPoleThematics,
+  createThematic, getPoleThematic, getPoleThematics, getThematicRoleId,
   createProject, getThematicProjects,
 };

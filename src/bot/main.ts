@@ -90,9 +90,16 @@ const start = async (): Promise<void> => {
             const channelId = interaction.options.getChannel('channel')?.id;
 
             if (poleName && thematicName && channelId) {
+              let error;
               const thematic = await (await Pole.getPole(poleName))?.getThematic(thematicName);
               await (thematic?.addProject(channelId));
-              await interaction.reply({ content: ':white_check_mark: Project added.', ephemeral: true });
+              if (!thematic) {
+                error = 'Unable to find the pole or the thematic.';
+              } else {
+                error = await (thematic?.addProject(channelId));
+              }
+
+              await interaction.reply({ content: error || ':white_check_mark: Project added.', ephemeral: true });
             }
           }
 
