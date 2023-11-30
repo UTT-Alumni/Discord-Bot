@@ -26,9 +26,12 @@
   },
   "rules": {
     "import/no-relative-packages": 0,
+    "import/no-unresolved": 0,
     "camelcase": ["error", { "allow": ["_t$"] }],
     "import/extensions": 0,
     "no-console": 0,
-    "comma-dangle": ["error", "always-multiline"]
+    "comma-dangle": ["error", "always-multiline"],
+    "no-unused-vars": "warn",
+    "@typescript-eslint/no-unused-vars": 0
   }
 }

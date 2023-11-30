@@ -1,3 +1,6 @@
+/* eslint-disable no-await-in-loop */
+/* eslint-disable no-restricted-syntax */
+
 import { Client, TextChannel } from 'discord.js';
 
 import {
@@ -42,21 +45,24 @@ class Pole {
     const poles = await db.getPoles();
 
     for (const pole of poles) {
-      const rolesChannel = discordClient.channels.cache.find((channel) => channel.id == pole.rolesChannelId) as TextChannel;
+      const rolesChannel = discordClient.channels.cache
+        .find((channel) => channel.id === pole.rolesChannelId) as TextChannel;
       const categoryName = rolesChannel.parent?.name;
       output += `Pôle : ${pole.name} (${categoryName}, ${rolesChannel.name})\n`;
 
       const thematics = await db.getPoleThematics(pole.id);
 
       for (const thematic of thematics) {
-        const thematicChannel = discordClient.channels.cache.find((channel) => channel.id == thematic.channelId) as TextChannel;
+        const thematicChannel = discordClient.channels.cache
+          .find((channel) => channel.id === thematic.channelId) as TextChannel;
 
         output += `  | Thématique : ${thematic.name} (${thematicChannel.name})\n`;
 
         const projects = await db.getThematicProjects(thematic.id);
 
         for (const project of projects) {
-          const projectChannel = discordClient.channels.cache.find((channel) => channel.id == project.channelId) as TextChannel;
+          const projectChannel = discordClient.channels.cache
+            .find((channel) => channel.id === project.channelId) as TextChannel;
 
           output += `  |   | Projet : (${projectChannel.name})\n`;
         }
