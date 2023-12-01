@@ -7,6 +7,10 @@ import {
   Events,
   TextChannel,
   ChatInputCommandInteraction,
+  User,
+  PartialUser,
+  MessageReaction,
+  PartialMessageReaction,
 } from 'discord.js';
 
 import { BotConfig } from './types';
@@ -18,6 +22,42 @@ import {
 
 import Pole from './pole';
 import Bot from './bot';
+import * as db from './database';
+
+const onMessageReaction = async (
+  reaction: MessageReaction | PartialMessageReaction,
+  user: User | PartialUser,
+  add: boolean,
+) => {
+  // If the reaction data we have is partial, then fetch it
+  if (reaction.partial) {
+    await reaction.fetch();
+  }
+
+  // If the bot is the reaction author, then ignore
+  if (user.id === Bot.get().user?.id) {
+    return;
+  }
+
+  // Check if the reaction happened in a pole reaction channel
+  const poles = await db.getPoles();
+  const pole = poles.find((p) => p.rolesChannelId === reaction.message.channel.id);
+  if (pole) {
+    const thematic = await db.getThematicByEmoji(reaction.emoji.toString());
+
+    if (thematic) {
+      const member = await reaction.message.guild!.members.fetch(user.id);
+
+      if (add) {
+        member.roles.add(thematic?.roleId);
+      } else {
+        member.roles.remove(thematic?.roleId);
+      }
+
+      console.log(`Role ${thematic?.name} (${pole.name} pole) ${add ? 'added' : 'removed'} to ${user.displayName}.`);
+    }
+  }
+};
 
 /**
  * Start the discord bot client
@@ -79,8 +119,15 @@ const start = async (): Promise<void> => {
             const channelId = interaction.options.getChannel('channel')?.id;
 
             if (poleName && name && emoji && roleId && channelId) {
-              await (await Pole.getPole(poleName))?.addThematic(name, emoji, roleId, channelId);
-              await interaction.reply({ content: ':white_check_mark: Thematic added.', ephemeral: true });
+              let error;
+              const pole = await Pole.getPole(poleName);
+              if (!pole) {
+                error = 'Unable to find pole.';
+              } else {
+                error = await pole.addThematic(name, emoji, roleId, channelId);
+              }
+
+              await interaction.reply({ content: error || ':white_check_mark: Thematic added.', ephemeral: true });
             }
           }
 
@@ -126,6 +173,13 @@ const start = async (): Promise<void> => {
         }
       }
     });
+
+    // https://discordjs.guide/popular-topics/reactions.html#listening-for-reactions-on-old-messages
+    bot.on(Events.MessageReactionAdd, (reaction, user) => onMessageReaction(reaction, user, true));
+    bot.on(
+      Events.MessageReactionRemove,
+      (reaction, user) => onMessageReaction(reaction, user, false),
+    );
 
     await bot.login(botConfig.token);
   } catch (err) {

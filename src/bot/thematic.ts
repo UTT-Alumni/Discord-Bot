@@ -16,11 +16,20 @@ class Thematic {
   ) => {
     // Check if the channel exists
     const channel = await Bot.get().channels.fetch(channelId);
-    if (!channel || !(channel instanceof TextChannel)) {
+    if (!(channel instanceof TextChannel)) {
       return 'Unable to find the specified channel.';
     }
 
     // Set permissions for the channel to be visible from users with thematic role only
+    this.setChannelVisibility(channel);
+
+    // Add to the database
+    await db.createProject(this.id, channelId);
+
+    return null;
+  };
+
+  public setChannelVisibility = async (channel: TextChannel) => {
     const roleId = await db.getThematicRoleId(this.id);
     if (!roleId) {
       return 'Unable to find thematic.';
@@ -31,9 +40,6 @@ class Thematic {
     }
     channel.permissionOverwrites.edit(channel.guild.roles.everyone, { ViewChannel: false });
     channel.permissionOverwrites.edit(role, { ViewChannel: true });
-
-    // Add to the database
-    await db.createProject(this.id, channelId);
 
     return null;
   };

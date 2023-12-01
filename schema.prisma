@@ -22,7 +22,7 @@ model Thematic {
   name      String    @unique
   poleId    String
   pole      Pole      @relation(fields: [poleId], references: [id])
-  emoji     String
+  emoji     String    @unique
   roleId    String
   channelId String    @unique
   projects  Project[]

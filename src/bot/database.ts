@@ -18,7 +18,17 @@ const createPole = async (name: Pole_t['name'], rolesChannelId: Pole_t['rolesCha
   return pole;
 };
 
-const getPole = async (name: Pole_t['name']) => {
+const getPole = async (id: Pole_t['id']) => {
+  const pole = await prisma.pole.findUnique({
+    where: {
+      id,
+    },
+  });
+
+  return pole;
+};
+
+const getPoleByName = async (name: Pole_t['name']) => {
   const pole = await prisma.pole.findUnique({
     where: {
       name,
@@ -50,7 +60,7 @@ const createThematic = async (
   return thematic;
 };
 
-const getPoleThematic = async (poleId: Pole_t['id'], name: Thematic_t['name']) => {
+const getThematicByName = async (poleId: Pole_t['id'], name: Thematic_t['name']) => {
   const thematic = await prisma.thematic.findUnique({
     where: {
       poleId,
@@ -61,7 +71,17 @@ const getPoleThematic = async (poleId: Pole_t['id'], name: Thematic_t['name']) =
   return thematic;
 };
 
-const getPoleThematics = async (poleId: Pole_t['id']) => {
+const getThematicByEmoji = async (emoji: Thematic_t['emoji']) => {
+  const thematic = await prisma.thematic.findUnique({
+    where: {
+      emoji,
+    },
+  });
+
+  return thematic;
+};
+
+const getThematics = async (poleId: Pole_t['id']) => {
   const thematics = await prisma.thematic.findMany({
     where: {
       poleId,
@@ -98,7 +118,7 @@ const createProject = async (
   return project;
 };
 
-const getThematicProjects = async (thematicId: Thematic_t['id']) => {
+const getProjects = async (thematicId: Thematic_t['id']) => {
   const projects = await prisma.project.findMany({
     where: {
       thematicId,
@@ -109,7 +129,7 @@ const getThematicProjects = async (thematicId: Thematic_t['id']) => {
 };
 
 export {
-  createPole, getPole, getPoles,
-  createThematic, getPoleThematic, getPoleThematics, getThematicRoleId,
-  createProject, getThematicProjects,
+  createPole, getPole, getPoleByName, getPoles,
+  createThematic, getThematicByName, getThematicByEmoji, getThematics, getThematicRoleId,
+  createProject, getProjects,
 };

@@ -11,6 +11,7 @@ import {
 import * as db from './database';
 
 import Thematic from './thematic';
+import Bot from './bot';
 
 class Pole {
   private id: string;
@@ -23,7 +24,14 @@ class Pole {
     name: Pole_t['name'],
     rolesChannelId: Pole_t['rolesChannelId'],
   ) => {
-    // TODO : check if the channel exists
+    // Check if the role channel exists
+    const channel = await Bot.get().channels.fetch(rolesChannelId);
+    if (!channel || !(channel instanceof TextChannel)) {
+      return 'Unable to find the specified channel.';
+    }
+
+    // Change its permission
+    channel.permissionOverwrites.edit(channel.guild.roles.everyone, { AddReactions: false });
 
     // Add to the database
     const pole = await db.createPole(name, rolesChannelId);
@@ -33,7 +41,7 @@ class Pole {
 
   public static getPole = async (name: Pole_t['name']) => {
     // Try to retrieve the corresponding pole in the database
-    const pole = await db.getPole(name);
+    const pole = await db.getPoleByName(name);
 
     // Return a Pole object if it exists
     return pole ? new Pole(pole.id) : null;
@@ -50,7 +58,7 @@ class Pole {
       const categoryName = rolesChannel.parent?.name;
       output += `Pole : ${pole.name} (${categoryName}, ${rolesChannel.name})\n`;
 
-      const thematics = await db.getPoleThematics(pole.id);
+      const thematics = await db.getThematics(pole.id);
 
       for (const thematic of thematics) {
         const thematicChannel = discordClient.channels.cache
@@ -58,7 +66,7 @@ class Pole {
 
         output += `  | Thematic : ${thematic.name} (${thematicChannel.name})\n`;
 
-        const projects = await db.getThematicProjects(thematic.id);
+        const projects = await db.getProjects(thematic.id);
 
         for (const project of projects) {
           const projectChannel = discordClient.channels.cache
@@ -78,23 +86,44 @@ class Pole {
     roleId: Thematic_t['roleId'],
     channelId: Thematic_t['channelId'],
   ) => {
-    // TODO: check if the channel exists
+    const bot = Bot.get();
 
-    // TODO: create the role
+    // Check if the channel exists
+    const channel = await bot.channels.fetch(channelId);
+    if (!channel || !(channel instanceof TextChannel)) {
+      return 'Unable to find the specified channel.';
+    }
 
-    // TODO: add thematic emoji to the reaction message of the pole
-
-    // TODO: change permissions for the channel to be visible from users with associated role only
+    // Add thematic emoji to the reaction channel
+    const pole = await db.getPole(this.id);
+    if (!pole) {
+      return 'Unable to find pole.';
+    }
+    const reactionChannel = await bot.channels.fetch(pole.rolesChannelId);
+    if (!reactionChannel?.isTextBased()) {
+      return 'The pole must be a text channel.';
+    }
+    await reactionChannel.messages.fetch();
+    const message = reactionChannel.messages.cache.at(0);
+    if (!message) {
+      return 'Unable to find a message in the pole reaction channel.';
+    }
+    await message?.react(emoji);
 
     // Add to the database
-    const thematic = await db.createThematic(this.id, name, emoji, roleId, channelId);
+    const thematic = new Thematic(
+      (await db.createThematic(this.id, name, emoji, roleId, channelId)).id,
+    );
 
-    return new Thematic(thematic.id);
+    // Change permissions for the channel to be visible from users with associated role only
+    thematic.setChannelVisibility(channel);
+
+    return null;
   };
 
   public getThematic = async (name: Thematic_t['name']) => {
     // Try to retrieve the corresponding thematic of the pole
-    const thematic = await db.getPoleThematic(this.id, name);
+    const thematic = await db.getThematicByName(this.id, name);
 
     return thematic ? new Thematic(thematic.id) : null;
   };
