@@ -1,5 +1,5 @@
 import { promises as fs } from 'node:fs';
-
+import 'dotenv/config';
 import {
   ActionRowBuilder,
   ButtonBuilder,
@@ -64,34 +64,44 @@ const onMessageReaction = async (
  * @returns {Promise<void>} - The promise to resolve when the bot is connected
  */
 const start = async (): Promise<void> => {
-  const configContent: string = await fs.readFile(process.argv[2], 'utf8');
-  const botConfig: BotConfig = JSON.parse(configContent);
+  // Get .env variables
+  const guildId = process.env.GUILD_ID;
+  const rulesChannelId = process.env.RULES_CHANNEL_ID;
+  const botToken = process.env.BOT_TOKEN;
+
+  if (!guildId || !rulesChannelId || !botToken) {
+    console.error('You must fill all the fields in the .env file.');
+    return;
+  }
+
+  // Get messages from config file
+  const messages = JSON.parse(await fs.readFile('messages.json', 'utf8'));
 
   try {
     const bot = Bot.get();
 
     bot.on(Events.ClientReady, async (): Promise<void> => {
       console.info(`UTT Alumni Discord bot logged in as ${bot?.user?.tag}!`);
-      const guild = await bot.guilds.fetch(botConfig.server);
-      console.info(`Discord guild ${botConfig.server} retrieved.`);
-      const channel = await guild.channels.fetch(botConfig.channel) as TextChannel;
-      console.info(`Discord channel ${botConfig.channel} retrieved.`);
+      const guild = await bot.guilds.fetch(guildId);
+      console.info(`Discord guild ${guildId} retrieved.`);
+      const channel = await guild.channels.fetch(rulesChannelId) as TextChannel;
+      console.info(`Discord channel ${rulesChannelId} retrieved.`);
       const channelMessages = await channel.messages.fetch();
-      console.info(`Fetch ${channelMessages.size} messages on channel ${botConfig.channel}.`);
+      console.info(`Fetch ${channelMessages.size} messages on channel ${rulesChannelId}.`);
       if (channelMessages.size > 0) {
         console.info('Discord server already set with a welcome message.');
       } else {
         console.info('Sending the welcome message to the Discord channel.');
-        // Sends custom message mentioning the user and adds rules provided in config.json file
+        // Sends custom message mentioning the user and adds rules
         const row = new ActionRowBuilder()
           .addComponents(
             new ButtonBuilder()
               .setCustomId('primary')
-              .setLabel(botConfig.accept)
+              .setLabel(messages.accept)
               .setStyle(ButtonStyle.Primary),
           ) as ActionRowBuilder<ButtonBuilder>;
         await channel.send({
-          content: botConfig.rules,
+          content: messages.rules,
           components: [row],
         });
       }
@@ -155,20 +165,20 @@ const start = async (): Promise<void> => {
         }
 
         // "Accept rules" button
-        if (interaction.channelId === botConfig.channel && interaction.isButton()) {
-          const modal = await createModal(botConfig.modal);
+        if (interaction.channelId === rulesChannelId && interaction.isButton()) {
+          const modal = await createModal(messages.modal);
           await interaction.showModal(modal);
         }
 
         // "Register" modal submit
         if (interaction.isModalSubmit() && interaction.id === 'registerModal') {
-          await onModalSubmit(interaction, botConfig.role);
-          await interaction.reply({ content: botConfig.welcome, ephemeral: true });
+          await onModalSubmit(interaction, messages.role);
+          await interaction.reply({ content: messages.welcome, ephemeral: true });
         }
       } catch (err) {
         console.error(err);
         if (interaction.isButton() || interaction.isModalSubmit() || interaction.isCommand()) {
-          await interaction.reply({ content: botConfig.error, ephemeral: true });
+          await interaction.reply({ content: messages.error, ephemeral: true });
         }
       }
     });
@@ -180,7 +190,7 @@ const start = async (): Promise<void> => {
       (reaction, user) => onMessageReaction(reaction, user, false),
     );
 
-    await bot.login(botConfig.token);
+    await bot.login(botToken);
   } catch (err) {
     console.error(err);
   }
