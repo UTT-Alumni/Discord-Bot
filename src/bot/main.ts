@@ -139,11 +139,10 @@ const start = async (): Promise<void> => {
             if (poleName && thematicName && channelId) {
               let error;
               const thematic = await (await Pole.getPole(poleName))?.getThematic(thematicName);
-              await (thematic?.addProject(channelId));
               if (!thematic) {
                 error = 'Unable to find the pole or the thematic.';
               } else {
-                error = await (thematic?.addProject(channelId));
+                error = await thematic?.addProject(channelId);
               }
 
               await interaction.reply({ content: error || ':white_check_mark: Project added.', ephemeral: true });
