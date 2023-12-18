@@ -31,8 +31,10 @@ class Pole {
     }
 
     // Change its permission
-    channel.permissionOverwrites.delete(process.env.BASE_ROLE_ID as string);
-    channel.permissionOverwrites.create(channel.guild.roles.everyone, { AddReactions: false });
+    channel.permissionOverwrites.edit(
+      channel.guild.roles.everyone,
+      { AddReactions: false, SendMessages: false },
+    );
 
     // Add to the database
     const pole = await db.createPole(name, rolesChannelId);
