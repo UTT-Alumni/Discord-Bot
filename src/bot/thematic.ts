@@ -38,8 +38,10 @@ class Thematic {
     if (!role) {
       return 'Unable to find thematic role.';
     }
-    channel.permissionOverwrites.edit(channel.guild.roles.everyone, { ViewChannel: false });
-    channel.permissionOverwrites.edit(role, { ViewChannel: true });
+
+    channel.permissionOverwrites.delete(process.env.BASE_ROLE_ID as string);
+    channel.permissionOverwrites.create(channel.guild.roles.everyone, { ViewChannel: false });
+    channel.permissionOverwrites.create(role, { ViewChannel: true });
 
     return null;
   };
