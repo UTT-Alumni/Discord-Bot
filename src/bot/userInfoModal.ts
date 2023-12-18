@@ -8,14 +8,14 @@ import {
   GuildMemberRoleManager,
 } from 'discord.js';
 
-import { BotConfig } from './types';
+import { Messages } from './types';
 
 /**
  * Create a modal to ask user information
  * @param {ModalData} data - The modal data
  * @returns {Promise<ModalBuilder>} - The created modal
  */
-const createModal = async (data: BotConfig['modal']): Promise<ModalBuilder> => {
+const createModal = async (data: Messages['modal']): Promise<ModalBuilder> => {
   const modal = new ModalBuilder().setCustomId('registerModal').setTitle(data.title);
 
   const firstNameComponent = new ActionRowBuilder().addComponents(new TextInputBuilder()

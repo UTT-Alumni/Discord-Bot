@@ -13,8 +13,6 @@ import {
   PartialMessageReaction,
 } from 'discord.js';
 
-import { BotConfig } from './types';
-
 import {
   createModal,
   onModalSubmit,

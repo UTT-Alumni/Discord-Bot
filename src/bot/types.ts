@@ -1,8 +1,8 @@
-export interface BotConfig {
-    server: string;
-    channel: string;
-    accept: string;
+export interface Messages {
     rules: string;
+    accept: string;
+    welcome: string;
+    error: string;
     modal: {
         title: string;
         firstNameLabel: string;
@@ -14,8 +14,4 @@ export interface BotConfig {
         educationLabel: string;
         educationPlaceholder: string;
     };
-    role: string;
-    welcome: string;
-    error: string;
-    token: string;
 }
