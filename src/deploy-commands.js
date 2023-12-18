@@ -3,11 +3,10 @@
 
 // https://v13.discordjs.guide/creating-your-bot/creating-commands.html#registering-commands
 
+require('dotenv/config');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { REST } = require('@discordjs/rest');
 const { Routes } = require('discord-api-types/v9');
-
-const config = require('../config-deploy.json');
 
 // Describe bot commands
 const commands = [
@@ -41,10 +40,6 @@ const commands = [
       .setName('emoji')
       .setDescription('Users will have to react with this emoji to get the associated role.')
       .setRequired(true))
-    .addRoleOption((option) => option
-      .setName('role')
-      .setDescription('The role associated to the thematic.')
-      .setRequired(true))
     .addChannelOption((option) => option
       .setName('channel')
       .setDescription('The thematic channel.')
@@ -74,11 +69,11 @@ const commands = [
 ];
 
 // Set identification token
-const rest = new REST({ version: '9' }).setToken(config.token);
+const rest = new REST({ version: '9' }).setToken(process.env.BOT_TOKEN);
 
 // Send new bot commands to Discord
 rest.put(
-  Routes.applicationGuildCommands(config.clientId, config.guildId),
+  Routes.applicationGuildCommands(process.env.CLIENT_ID, process.env.GUILD_ID),
   { body: commands.map((command) => command.toJSON()) },
 )
   .then(() => console.log('Successfully registered application commands.'))
