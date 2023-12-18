@@ -123,16 +123,15 @@ const start = async (): Promise<void> => {
             const poleName = interaction.options.getString('pole');
             const name = interaction.options.getString('name');
             const emoji = interaction.options.getString('emoji');
-            const roleId = interaction.options.getRole('role')?.id;
             const channelId = interaction.options.getChannel('channel')?.id;
 
-            if (poleName && name && emoji && roleId && channelId) {
+            if (poleName && name && emoji && channelId) {
               let error;
               const pole = await Pole.getPole(poleName);
               if (!pole) {
                 error = 'Unable to find pole.';
               } else {
-                error = await pole.addThematic(name, emoji, roleId, channelId);
+                error = await pole.addThematic(name, emoji, channelId);
               }
 
               await interaction.reply({ content: error || ':white_check_mark: Thematic added.', ephemeral: true });

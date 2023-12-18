@@ -84,7 +84,6 @@ class Pole {
   public addThematic = async (
     name: Thematic_t['name'],
     emoji: Thematic_t['emoji'],
-    roleId: Thematic_t['roleId'],
     channelId: Thematic_t['channelId'],
   ) => {
     const bot = Bot.get();
@@ -93,6 +92,15 @@ class Pole {
     const channel = await bot.channels.fetch(channelId);
     if (!channel || !(channel instanceof TextChannel)) {
       return 'Unable to find the specified channel.';
+    }
+
+    // Create the role if it does not exists
+    const roleName = `${emoji} ${name}`;
+    let role = (await channel.guild.roles.fetch()).find((r) => r.name === roleName);
+    if (!role) {
+      role = await channel.guild.roles.create({
+        name: roleName,
+      });
     }
 
     // Add thematic emoji to the reaction channel
@@ -113,7 +121,7 @@ class Pole {
 
     // Add to the database
     const thematic = new Thematic(
-      (await db.createThematic(this.id, name, emoji, roleId, channelId)).id,
+      (await db.createThematic(this.id, name, emoji, role.id, channelId)).id,
     );
 
     // Change permissions for the channel to be visible from users with associated role only
