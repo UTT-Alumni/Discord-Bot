@@ -9,4 +9,4 @@ RUN apt-get update -yq \
 && cd /home/boarding-duck \
 && npm install 
 
-CMD ["npm","--prefix","/home/boarding-duck","start"]
+CMD ["npm","--prefix","/home/boarding-duck","start:setup"]

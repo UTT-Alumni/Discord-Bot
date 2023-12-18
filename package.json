@@ -5,6 +5,7 @@
   "main": "src/bot/main.ts",
   "scripts": {
     "start": "ts-node .",
+    "start:setup": "npm run db:push && npm run deploy:commands && npm start",
     "start:dev": "ts-node-dev .",
     "lint": "eslint src/",
     "lint:fix": "eslint src/ --fix",
