@@ -53,16 +53,16 @@ class Pole {
         name: `${emoji}｜choix-projets`,
       });
       // Create the other channels
-      category.children.create({
+      await category.children.create({
         name: `${emoji}｜annonces`,
       });
-      category.children.create({
+      await category.children.create({
         name: `${emoji}｜blabla`,
       });
     }
 
     // Change its permission
-    channel.permissionOverwrites.edit(
+    await channel.permissionOverwrites.edit(
       channel.guild.roles.everyone,
       { AddReactions: false, SendMessages: false },
     );
@@ -136,38 +136,19 @@ class Pole {
     if (!channel) {
       // If the role channel does not exists, create the channels
       const pole = await db.getPole(this.id);
-      const poleChannel = await guild.channels.fetch(pole!.id);
+      const poleChannel = await guild.channels.fetch(pole!.rolesChannelId);
 
       // Create the text channel
-      channel = await (poleChannel!.parent as CategoryChannel).children.create({
-        name: `📂${pole!.emoji}｜${name}`,
-        permissionOverwrites: [
-          // Only visible from user with the thematic role
-          {
-            id: guild.roles.everyone,
-            deny: PermissionsBitField.Flags.ViewChannel,
-          },
-          {
-            id: role,
-            allow: PermissionsBitField.Flags.ViewChannel,
-          },
-        ],
+      channel = await guild.channels.create({
+        name: `📂${emoji}｜${name}`,
+        parent: poleChannel!.parent as CategoryChannel,
       });
       // Create the voice channel
-      await (poleChannel!.parent as CategoryChannel).children.create({
+      await guild.channels.create({
+        // Use the same name than the text channel name
+        name: `📂${emoji}｜${name}`.replace(' ', '-').toLowerCase(),
+        parent: poleChannel!.parent as CategoryChannel,
         type: ChannelType.GuildVoice,
-        name: `📂${pole!.emoji}｜${name}`,
-        permissionOverwrites: [
-          // Only visible from user with the thematic role
-          {
-            id: guild.roles.everyone,
-            deny: PermissionsBitField.Flags.ViewChannel,
-          },
-          {
-            id: role,
-            allow: PermissionsBitField.Flags.ViewChannel,
-          },
-        ],
       });
     }
 
@@ -180,8 +161,7 @@ class Pole {
     if (!reactionChannel?.isTextBased()) {
       return 'The pole must be a text channel.';
     }
-    await reactionChannel.messages.fetch();
-    const message = reactionChannel.messages.cache.at(0);
+    const message = (await reactionChannel.messages.fetch()).at(0);
     if (!message) {
       return 'Unable to find a message in the pole reaction channel.';
     }

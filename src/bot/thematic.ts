@@ -1,4 +1,4 @@
-import { TextChannel } from 'discord.js';
+import { ChannelType, TextChannel, VoiceChannel } from 'discord.js';
 import { Project as Project_t } from '../../prisma';
 import Bot from './bot';
 
@@ -19,17 +19,20 @@ class Thematic {
 
     // Check if the channel exists
     let channel = _channel;
-    if (!(channel instanceof TextChannel)) {
+    if (!channel) {
       const thematicEmoji = (await db.getThematicById(this.id))?.emoji;
 
       // Otherwise create the channel
       const thematicChannel = (await bot.channels.fetch(
         (await db.getThematicById(this.id))!.channelId,
       )) as TextChannel;
+
       channel = await thematicChannel.parent?.children.create({
         name: `${thematicEmoji}｜${name}`,
-        position: thematicChannel.position + 2, // Set the position just below the thematic channel
       }) as TextChannel;
+
+      // Set the position just below the thematic channel)
+      channel.setPosition(thematicChannel.position + 1);
     }
 
     // Set permissions for the channel to be visible from users with thematic role only
@@ -51,9 +54,20 @@ class Thematic {
       return 'Unable to find thematic role.';
     }
 
-    channel.permissionOverwrites.delete(process.env.BASE_ROLE_ID as string);
-    channel.permissionOverwrites.create(channel.guild.roles.everyone, { ViewChannel: false });
-    channel.permissionOverwrites.create(role, { ViewChannel: true });
+    // Retrieve voice channel
+    const voiceChannel = channel.parent!.children.cache
+      .find((c) => c.name === channel.name && c.type === ChannelType.GuildVoice) as VoiceChannel;
+
+    const channels = [channel] as (TextChannel | VoiceChannel)[];
+    if (voiceChannel) {
+      channels.push(voiceChannel);
+    }
+
+    channels.forEach((c) => {
+      c.permissionOverwrites.delete(process.env.BASE_ROLE_ID as string);
+      c.permissionOverwrites.create(channel.guild.roles.everyone, { ViewChannel: false });
+      c.permissionOverwrites.create(role, { ViewChannel: true });
+    });
 
     return null;
   };
