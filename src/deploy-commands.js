@@ -11,56 +11,64 @@ const { Routes } = require('discord-api-types/v9');
 // Describe bot commands
 const commands = [
 
-  // /pole {name} {discordChannel}
+  // /pole name emoji [discordChannel]
   new SlashCommandBuilder()
     .setName('pole')
-    .setDescription('Adds a pole.')
+    .setDescription('Create a pole and the associated channels if needed.')
     .addStringOption((option) => option
       .setName('name')
-      .setDescription('The pole name. You will then be able to use it to add thematics to the pole.')
-      .setRequired(true))
-    .addChannelOption((option) => option
-      .setName('channel')
-      .setDescription("The channel in which users can react to get the roles of the pole's thematics.")
-      .setRequired(true)),
-
-  // /thematic {pole} {name} {emoji} {discordRole} {discordChannel}
-  new SlashCommandBuilder()
-    .setName('thematic')
-    .setDescription('Associates a thematic with a pole.')
-    .addStringOption((option) => option
-      .setName('pole')
-      .setDescription('The pole name as defined by the /getPoles command (it is not always the channel name).')
-      .setRequired(true))
-    .addStringOption((option) => option
-      .setName('name')
-      .setDescription('The name of the thematic. You will then be able to use it to add projects to the thematic.')
+      .setDescription('The pole name.')
       .setRequired(true))
     .addStringOption((option) => option
       .setName('emoji')
-      .setDescription('Users will have to react with this emoji to get the associated role.')
+      .setDescription('The pole emoji (used in channel names).')
       .setRequired(true))
     .addChannelOption((option) => option
       .setName('channel')
-      .setDescription('The thematic channel.')
-      .setRequired(true)),
+      .setDescription('(Only if the pole channel already exists) The pole reaction channel.')
+      .setRequired(false)),
 
-  // /project {pole} {thematic} {discordChannel}
+  // /thematic pole name emoji [discordChannel]
   new SlashCommandBuilder()
-    .setName('project')
-    .setDescription('Associates a project with a thematic.')
+    .setName('thematic')
+    .setDescription('Create a thematic and the associated channel if needed.')
     .addStringOption((option) => option
       .setName('pole')
-      .setDescription('The pole name as defined by the /getPoles command (it is not always the channel name).')
+      .setDescription('The pole name.')
+      .setRequired(true))
+    .addStringOption((option) => option
+      .setName('name')
+      .setDescription('The thematic name.')
+      .setRequired(true))
+    .addStringOption((option) => option
+      .setName('emoji')
+      .setDescription('The thematic emoji (used in reactions and channel name).')
+      .setRequired(true))
+    .addChannelOption((option) => option
+      .setName('channel')
+      .setDescription('(Only if the thematic channel already exists) The thematic channel.')
+      .setRequired(false)),
+
+  // /project pole thematic name [discordChannel]
+  new SlashCommandBuilder()
+    .setName('project')
+    .setDescription('Create a project and the associated channel if needed.')
+    .addStringOption((option) => option
+      .setName('pole')
+      .setDescription('The pole name.')
       .setRequired(true))
     .addStringOption((option) => option
       .setName('thematic')
-      .setDescription('The thematic name as defined by the /getPoles command (it is not always the channel name).')
+      .setDescription('The thematic name.')
+      .setRequired(true))
+    .addStringOption((option) => option
+      .setName('name')
+      .setDescription('The project name.')
       .setRequired(true))
     .addChannelOption((option) => option
       .setName('channel')
-      .setDescription('The project channel.')
-      .setRequired(true)),
+      .setDescription('(Only if the thematic channel already exists) The project channel.')
+      .setRequired(false)),
 
   // /get
   new SlashCommandBuilder()

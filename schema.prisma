@@ -11,6 +11,7 @@ generator client {
 model Pole {
   id             String     @id @default(uuid())
   name           String     @unique
+  emoji          String
   rolesChannelId String     @unique
   thematics      Thematic[]
   createdAt      DateTime   @default(now())
@@ -19,22 +20,28 @@ model Pole {
 
 model Thematic {
   id        String    @id @default(uuid())
-  name      String    @unique
+  name      String
   poleId    String
   pole      Pole      @relation(fields: [poleId], references: [id])
-  emoji     String    @unique
+  emoji     String
   roleId    String
   channelId String    @unique
   projects  Project[]
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
+
+  @@unique([poleId, name])
+  @@unique([poleId, emoji])
 }
 
 model Project {
   id         String   @id @default(uuid())
+  name       String
   thematicId String
   thematic   Thematic @relation(fields: [thematicId], references: [id])
   channelId  String   @unique
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
+
+  @@unique([thematicId, name])
 }

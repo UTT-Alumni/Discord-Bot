@@ -7,10 +7,11 @@ import {
 
 const prisma = new PrismaClient();
 
-const createPole = async (name: Pole_t['name'], rolesChannelId: Pole_t['rolesChannelId']) => {
+const createPole = async (name: Pole_t['name'], emoji: Pole_t['emoji'], rolesChannelId: Pole_t['rolesChannelId']) => {
   const pole = await prisma.pole.create({
     data: {
       name,
+      emoji,
       rolesChannelId,
     },
   });
@@ -60,8 +61,18 @@ const createThematic = async (
   return thematic;
 };
 
-const getThematicByName = async (poleId: Pole_t['id'], name: Thematic_t['name']) => {
+const getThematicById = async (id: Thematic_t['id']) => {
   const thematic = await prisma.thematic.findUnique({
+    where: {
+      id,
+    },
+  });
+
+  return thematic;
+};
+
+const getThematicByName = async (poleId: Pole_t['id'], name: Thematic_t['name']) => {
+  const thematic = await prisma.thematic.findFirst({
     where: {
       poleId,
       name,
@@ -71,9 +82,10 @@ const getThematicByName = async (poleId: Pole_t['id'], name: Thematic_t['name'])
   return thematic;
 };
 
-const getThematicByEmoji = async (emoji: Thematic_t['emoji']) => {
-  const thematic = await prisma.thematic.findUnique({
+const getThematicByEmoji = async (poleId: Thematic_t['poleId'], emoji: Thematic_t['emoji']) => {
+  const thematic = await prisma.thematic.findFirst({
     where: {
+      poleId,
       emoji,
     },
   });
@@ -106,11 +118,13 @@ const getThematicRoleId = async (thematicId: Thematic_t['id']) => {
 
 const createProject = async (
   thematicId: Project_t['thematicId'],
+  name: Project_t['name'],
   channelId: Project_t['channelId'],
 ) => {
   const project = await prisma.project.create({
     data: {
       thematicId,
+      name,
       channelId,
     },
   });
@@ -130,6 +144,7 @@ const getProjects = async (thematicId: Thematic_t['id']) => {
 
 export {
   createPole, getPole, getPoleByName, getPoles,
-  createThematic, getThematicByName, getThematicByEmoji, getThematics, getThematicRoleId,
+  createThematic, getThematicById, getThematicByName,
+  getThematicByEmoji, getThematics, getThematicRoleId,
   createProject, getProjects,
 };

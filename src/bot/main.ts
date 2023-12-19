@@ -41,7 +41,7 @@ const onMessageReaction = async (
   const poles = await db.getPoles();
   const pole = poles.find((p) => p.rolesChannelId === reaction.message.channel.id);
   if (pole) {
-    const thematic = await db.getThematicByEmoji(reaction.emoji.toString());
+    const thematic = await db.getThematicByEmoji(pole.id, reaction.emoji.toString());
 
     if (thematic) {
       const member = await reaction.message.guild!.members.fetch(user.id);
@@ -109,53 +109,81 @@ const start = async (): Promise<void> => {
       try {
         // Bot commands
         if (interaction instanceof ChatInputCommandInteraction) {
+          // Pole command
           if (interaction.commandName === 'pole') {
             const name = interaction.options.getString('name');
-            const channelId = interaction.options.getChannel('channel')?.id;
+            const emoji = interaction.options.getString('emoji');
+            const channel = interaction.options.getChannel('channel');
 
-            if (name && channelId) {
-              await Pole.addPole(name, channelId);
-              await interaction.reply({ content: ':white_check_mark: Pole added.', ephemeral: true });
+            if (name && emoji) {
+              let error;
+              if (channel) {
+                if (!(channel instanceof TextChannel)) {
+                  error = 'The specified channel is not a text channel.';
+                } else {
+                  await Pole.addPole(name, emoji, channel);
+                }
+              } else {
+                await Pole.addPole(name, emoji);
+              }
+
+              await interaction.reply({ content: error || ':white_check_mark: Pole added.', ephemeral: true });
             }
           }
 
+          // Thematic command
           if (interaction.commandName === 'thematic') {
             const poleName = interaction.options.getString('pole');
             const name = interaction.options.getString('name');
             const emoji = interaction.options.getString('emoji');
-            const channelId = interaction.options.getChannel('channel')?.id;
+            const channel = interaction.options.getChannel('channel');
 
-            if (poleName && name && emoji && channelId) {
+            if (poleName && name && emoji) {
               let error;
               const pole = await Pole.getPole(poleName);
               if (!pole) {
                 error = 'Unable to find pole.';
+              } else if (channel) {
+                if (!(channel instanceof TextChannel)) {
+                  error = 'The specified channel is not a text channel.';
+                } else {
+                  error = await pole.addThematic(name, emoji, channel);
+                }
               } else {
-                error = await pole.addThematic(name, emoji, channelId);
+                error = await pole.addThematic(name, emoji);
               }
 
               await interaction.reply({ content: error || ':white_check_mark: Thematic added.', ephemeral: true });
             }
           }
 
+          // Project command
           if (interaction.commandName === 'project') {
             const poleName = interaction.options.getString('pole');
             const thematicName = interaction.options.getString('thematic');
-            const channelId = interaction.options.getChannel('channel')?.id;
+            const name = interaction.options.getString('name');
+            const channel = interaction.options.getChannel('channel');
 
-            if (poleName && thematicName && channelId) {
+            if (poleName && thematicName && name) {
               let error;
               const thematic = await (await Pole.getPole(poleName))?.getThematic(thematicName);
               if (!thematic) {
                 error = 'Unable to find the pole or the thematic.';
+              } else if (channel) {
+                if (!(channel instanceof TextChannel)) {
+                  error = 'The specified channel is not a text channel.';
+                } else {
+                  error = await thematic?.addProject(name, channel);
+                }
               } else {
-                error = await thematic?.addProject(channelId);
+                error = await thematic?.addProject(name);
               }
 
               await interaction.reply({ content: error || ':white_check_mark: Project added.', ephemeral: true });
             }
           }
 
+          // Get command
           if (interaction.commandName === 'get') {
             await interaction.reply({ content: await Pole.getFormatted(bot), ephemeral: true });
           }

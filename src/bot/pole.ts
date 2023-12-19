@@ -1,7 +1,9 @@
 /* eslint-disable no-await-in-loop */
 /* eslint-disable no-restricted-syntax */
 
-import { Client, TextChannel } from 'discord.js';
+import {
+  TextChannel, ChannelType, Client, PermissionsBitField, CategoryChannel,
+} from 'discord.js';
 
 import {
   Pole as Pole_t,
@@ -22,12 +24,41 @@ class Pole {
 
   public static addPole = async (
     name: Pole_t['name'],
-    rolesChannelId: Pole_t['rolesChannelId'],
+    emoji: Pole_t['emoji'],
+    _channel?: TextChannel,
   ) => {
-    // Check if the role channel exists
-    const channel = await Bot.get().channels.fetch(rolesChannelId);
-    if (!channel || !(channel instanceof TextChannel)) {
-      return 'Unable to find the specified channel.';
+    let channel = _channel;
+    if (!channel) {
+      // If the role channel does not exists, create the channels
+      const guild = await Bot.get().guilds.fetch(process.env.GUILD_ID as string);
+
+      // Create the category channel
+      const category = await guild.channels.create({
+        type: ChannelType.GuildCategory,
+        name: `Pôle ${name}`,
+        permissionOverwrites: [
+          // Only users with base role can see the category channels
+          {
+            id: guild.roles.everyone,
+            deny: PermissionsBitField.Flags.ViewChannel,
+          },
+          {
+            id: process.env.BASE_ROLE_ID as string,
+            allow: PermissionsBitField.Flags.ViewChannel,
+          },
+        ],
+      });
+      // Create the reaction role channel
+      channel = await category.children.create({
+        name: `${emoji}｜choix-projets`,
+      });
+      // Create the other channels
+      category.children.create({
+        name: `${emoji}｜annonces`,
+      });
+      category.children.create({
+        name: `${emoji}｜blabla`,
+      });
     }
 
     // Change its permission
@@ -37,7 +68,7 @@ class Pole {
     );
 
     // Add to the database
-    const pole = await db.createPole(name, rolesChannelId);
+    const pole = await db.createPole(name, emoji, channel.id);
 
     return new Pole(pole.id);
   };
@@ -75,7 +106,7 @@ class Pole {
           const projectChannel = discordClient.channels.cache
             .find((channel) => channel.id === project.channelId) as TextChannel;
 
-          output += `  |   | Project : (${projectChannel.name})\n`;
+          output += `  |   | Project : ${project.name} (${projectChannel.name})\n`;
         }
       }
     }
@@ -86,22 +117,41 @@ class Pole {
   public addThematic = async (
     name: Thematic_t['name'],
     emoji: Thematic_t['emoji'],
-    channelId: Thematic_t['channelId'],
+    _channel?: TextChannel,
   ) => {
     const bot = Bot.get();
-
-    // Check if the channel exists
-    const channel = await bot.channels.fetch(channelId);
-    if (!channel || !(channel instanceof TextChannel)) {
-      return 'Unable to find the specified channel.';
-    }
+    const guild = await bot.guilds.fetch(process.env.GUILD_ID as string);
 
     // Create the role if it does not exists
     const roleName = `${emoji} ${name}`;
-    let role = (await channel.guild.roles.fetch()).find((r) => r.name === roleName);
+    let role = (await guild.roles.fetch()).find((r) => r.name === roleName);
     if (!role) {
-      role = await channel.guild.roles.create({
+      role = await guild.roles.create({
         name: roleName,
+      });
+    }
+
+    // Check if the channel exists
+    let channel = _channel;
+    if (!channel) {
+      // If the role channel does not exists, create the channels
+      const pole = await db.getPole(this.id);
+      const poleChannel = await guild.channels.fetch(pole!.id);
+
+      // Create the channel
+      channel = await (poleChannel!.parent as CategoryChannel).children.create({
+        name: `📂${pole!.emoji}｜${name}`,
+        permissionOverwrites: [
+          // Only visible from user with the thematic role
+          {
+            id: guild.roles.everyone,
+            deny: PermissionsBitField.Flags.ViewChannel,
+          },
+          {
+            id: role,
+            allow: PermissionsBitField.Flags.ViewChannel,
+          },
+        ],
       });
     }
 
@@ -123,7 +173,7 @@ class Pole {
 
     // Add to the database
     const thematic = new Thematic(
-      (await db.createThematic(this.id, name, emoji, role.id, channelId)).id,
+      (await db.createThematic(this.id, name, emoji, role.id, channel.id)).id,
     );
 
     // Change permissions for the channel to be visible from users with associated role only

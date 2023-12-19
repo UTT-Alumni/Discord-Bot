@@ -12,19 +12,31 @@ class Thematic {
   }
 
   public addProject = async (
-    channelId: Project_t['channelId'],
+    name: Project_t['name'],
+    _channel?: TextChannel,
   ) => {
+    const bot = Bot.get();
+
     // Check if the channel exists
-    const channel = await Bot.get().channels.fetch(channelId);
+    let channel = _channel;
     if (!(channel instanceof TextChannel)) {
-      return 'Unable to find the specified channel.';
+      const thematicEmoji = (await db.getThematicById(this.id))?.emoji;
+
+      // Otherwise create the channel
+      const thematicChannel = (await bot.channels.fetch(
+        (await db.getThematicById(this.id))!.channelId,
+      )) as TextChannel;
+      channel = await thematicChannel.parent?.children.create({
+        name: `${thematicEmoji}｜${name}`,
+        position: thematicChannel.position + 2, // Set the position just below the thematic channel
+      }) as TextChannel;
     }
 
     // Set permissions for the channel to be visible from users with thematic role only
     this.setChannelVisibility(channel);
 
     // Add to the database
-    await db.createProject(this.id, channelId);
+    await db.createProject(this.id, name, channel.id);
 
     return null;
   };
