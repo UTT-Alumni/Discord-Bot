@@ -138,8 +138,24 @@ class Pole {
       const pole = await db.getPole(this.id);
       const poleChannel = await guild.channels.fetch(pole!.id);
 
-      // Create the channel
+      // Create the text channel
       channel = await (poleChannel!.parent as CategoryChannel).children.create({
+        name: `📂${pole!.emoji}｜${name}`,
+        permissionOverwrites: [
+          // Only visible from user with the thematic role
+          {
+            id: guild.roles.everyone,
+            deny: PermissionsBitField.Flags.ViewChannel,
+          },
+          {
+            id: role,
+            allow: PermissionsBitField.Flags.ViewChannel,
+          },
+        ],
+      });
+      // Create the voice channel
+      await (poleChannel!.parent as CategoryChannel).children.create({
+        type: ChannelType.GuildVoice,
         name: `📂${pole!.emoji}｜${name}`,
         permissionOverwrites: [
           // Only visible from user with the thematic role
