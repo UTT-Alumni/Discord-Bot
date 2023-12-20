@@ -70,10 +70,50 @@ const commands = [
       .setDescription('(Only if the thematic channel already exists) The project channel.')
       .setRequired(false)),
 
+  // /remove-pole pole
+  new SlashCommandBuilder()
+    .setName('remove-pole')
+    .setDescription('Remove a pole (it does not delete the channels).')
+    .addStringOption((option) => option
+      .setName('pole')
+      .setDescription('The pole name.')
+      .setRequired(true)),
+
+  // /remove-thematic pole thematic
+  new SlashCommandBuilder()
+    .setName('remove-thematic')
+    .setDescription('Remove a thematic (it does not delete the channel).')
+    .addStringOption((option) => option
+      .setName('pole')
+      .setDescription('The pole name.')
+      .setRequired(true))
+    .addStringOption((option) => option
+      .setName('thematic')
+      .setDescription('The thematic name.')
+      .setRequired(true)),
+
+  // /remove-project pole thematic project
+  new SlashCommandBuilder()
+    .setName('remove-project')
+    .setDescription('Remove a project (it does not delete the channel).')
+    .addStringOption((option) => option
+      .setName('pole')
+      .setDescription('The pole name.')
+      .setRequired(true))
+    .addStringOption((option) => option
+      .setName('thematic')
+      .setDescription('The thematic name.')
+      .setRequired(true))
+    .addStringOption((option) => option
+      .setName('project')
+      .setDescription('The project name.')
+      .setRequired(true)),
+
   // /get
   new SlashCommandBuilder()
     .setName('get')
     .setDescription('Displays everything the bot knows about the poles.'),
+
 ];
 
 // Set identification token

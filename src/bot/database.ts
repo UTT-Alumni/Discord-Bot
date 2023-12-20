@@ -41,6 +41,49 @@ const getPoleByName = async (name: Pole_t['name']) => {
 
 const getPoles = async () => prisma.pole.findMany();
 
+const deletePole = async (name: Pole_t['name']) => {
+  // Get pole
+  const pole = await prisma.pole.findUnique({
+    where: {
+      name,
+    },
+  });
+
+  if (!pole) return 'Unable to find the pole.';
+
+  // Get thematics
+  const thematics = await prisma.thematic.findMany({
+    where: {
+      poleId: pole.id,
+    },
+  });
+
+  // Delete projects
+  thematics.forEach(async (thematic) => {
+    await prisma.project.deleteMany({
+      where: {
+        thematicId: thematic.id,
+      },
+    });
+  });
+
+  // Delete thematics
+  await prisma.thematic.deleteMany({
+    where: {
+      poleId: pole.id,
+    },
+  });
+
+  // Delete pole
+  await prisma.pole.delete({
+    where: {
+      name,
+    },
+  });
+
+  return null;
+};
+
 const createThematic = async (
   poleId: Thematic_t['poleId'],
   name: Thematic_t['name'],
@@ -116,6 +159,44 @@ const getThematicRoleId = async (thematicId: Thematic_t['id']) => {
   return thematic?.roleId;
 };
 
+const deleteThematic = async (poleName: Pole_t['name'], thematicName: Thematic_t['name']) => {
+  // Get pole
+  const pole = await prisma.pole.findUnique({
+    where: {
+      name: poleName,
+    },
+  });
+
+  if (!pole) return 'Unable to find the pole.';
+
+  // Get thematic
+  const thematics = await prisma.thematic.findMany({
+    where: {
+      poleId: pole.id,
+      name: thematicName,
+    },
+  });
+
+  if (thematics.length !== 1) return 'Unable to find the thematic.';
+
+  // Delete projects
+  await prisma.project.deleteMany({
+    where: {
+      thematicId: thematics[0].id,
+    },
+  });
+
+  // Delete thematic
+  await prisma.thematic.deleteMany({
+    where: {
+      poleId: pole.id,
+      name: thematicName,
+    },
+  });
+
+  return null;
+};
+
 const createProject = async (
   thematicId: Project_t['thematicId'],
   name: Project_t['name'],
@@ -142,9 +223,53 @@ const getProjects = async (thematicId: Thematic_t['id']) => {
   return projects;
 };
 
+const deleteProject = async (
+  poleName: Pole_t['name'],
+  thematicName: Thematic_t['name'],
+  projectName: Project_t['name'],
+) => {
+  // Get pole
+  const pole = await prisma.pole.findUnique({
+    where: {
+      name: poleName,
+    },
+  });
+
+  if (!pole) return 'Unable to find the pole.';
+
+  // Get thematic
+  const thematics = await prisma.thematic.findMany({
+    where: {
+      poleId: pole.id,
+      name: thematicName,
+    },
+  });
+
+  if (thematics.length !== 1) return 'Unable to find the thematic.';
+
+  const projects = await prisma.project.findMany({
+    where: {
+      thematicId: thematics[0].id,
+      name: projectName,
+    },
+  });
+
+  if (projects.length !== 1) return 'Unable to find the project.';
+
+  // Delete project
+  await prisma.project.deleteMany({
+    where: {
+      thematicId: thematics[0].id,
+      name: projectName,
+    },
+  });
+
+  return null;
+};
+
 export {
-  createPole, getPole, getPoleByName, getPoles,
+  createPole, getPole, getPoleByName, getPoles, deletePole,
   createThematic, getThematicById, getThematicByName,
-  getThematicByEmoji, getThematics, getThematicRoleId,
-  createProject, getProjects,
+  getThematicByEmoji, getThematics, getThematicRoleId, deleteThematic,
+  createProject, getProjects, deleteProject,
 };

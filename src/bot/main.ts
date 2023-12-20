@@ -183,6 +183,39 @@ const start = async (): Promise<void> => {
             }
           }
 
+          // "Remove pole" command
+          if (interaction.commandName === 'remove-pole') {
+            const poleName = interaction.options.getString('pole');
+
+            if (poleName) {
+              const error = await db.deletePole(poleName);
+              await interaction.reply({ content: error || ':wastebasket: Pole successfully deleted.', ephemeral: true });
+            }
+          }
+
+          // "Remove thematic" command
+          if (interaction.commandName === 'remove-thematic') {
+            const poleName = interaction.options.getString('pole');
+            const thematicName = interaction.options.getString('thematic');
+
+            if (poleName && thematicName) {
+              const error = await db.deleteThematic(poleName, thematicName);
+              await interaction.reply({ content: error || ':wastebasket: Thematic successfully deleted.', ephemeral: true });
+            }
+          }
+
+          // "Remove project" command
+          if (interaction.commandName === 'remove-project') {
+            const poleName = interaction.options.getString('pole');
+            const thematicName = interaction.options.getString('thematic');
+            const projectName = interaction.options.getString('project');
+
+            if (poleName && thematicName && projectName) {
+              const error = await db.deleteProject(poleName, thematicName, projectName);
+              await interaction.reply({ content: error || ':wastebasket: Project successfully deleted.', ephemeral: true });
+            }
+          }
+
           // Get command
           if (interaction.commandName === 'get') {
             await interaction.reply({ content: await Pole.getFormatted(bot), ephemeral: true });
