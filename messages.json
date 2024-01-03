@@ -10,8 +10,6 @@
     "familyNameLabel": "Family name",
     "familyNamePlaceholder": "Your family name",
     "graduationYearLabel": "Graduation year",
-    "graduationYearPlaceholder": "Your graduation year",
-    "educationLabel": "Education",
-    "educationPlaceholder": "Your education..."
+    "graduationYearPlaceholder": "Your graduation year"
   }
 }

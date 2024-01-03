@@ -40,20 +40,11 @@ const createModal = async (data: Messages['modal']): Promise<ModalBuilder> => {
     .setMaxLength(4)
     .setPlaceholder(data.graduationYearPlaceholder)
     .setRequired(true)) as ActionRowBuilder<TextInputBuilder>;
-  const educationComponent = new ActionRowBuilder().addComponents(new TextInputBuilder()
-    .setCustomId('education')
-    .setLabel(data.educationLabel)
-    .setStyle(TextInputStyle.Short)
-    .setMinLength(2)
-    .setMaxLength(5)
-    .setPlaceholder(data.educationPlaceholder)
-    .setRequired(true)) as ActionRowBuilder<TextInputBuilder>;
 
   modal.addComponents([
     firstNameComponent,
     nameComponent,
     graduationYearComponent,
-    educationComponent,
   ]);
   return modal;
 };
@@ -72,15 +63,14 @@ async function onModalSubmit(interaction: ModalSubmitInteraction, roleId: string
   const firstName = interaction.fields.getTextInputValue('firstName');
   const familyName = interaction.fields.getTextInputValue('name');
   const graduationYear = interaction.fields.getTextInputValue('graduationYear');
-  const education = interaction.fields.getTextInputValue('education');
 
-  const separatorLength = 5; // spaces and dash
-  const suffixLength = graduationYear.length + education.length;
+  const separatorLength = 4; // spaces and dash
+  const suffixLength = graduationYear.length;
   const fullNameLength = firstName.length + familyName.length;
   if (separatorLength + suffixLength + fullNameLength > 32) {
-    await (interaction.member as GuildMember).setNickname(`${firstName} ${familyName.charAt(0).toUpperCase()}. - ${graduationYear} ${education}`);
+    await (interaction.member as GuildMember).setNickname(`${firstName} ${familyName.charAt(0).toUpperCase()}. - ${graduationYear}`);
   } else {
-    await (interaction.member as GuildMember).setNickname(`${firstName} ${familyName.toUpperCase()} - ${graduationYear} ${education}`);
+    await (interaction.member as GuildMember).setNickname(`${firstName} ${familyName.toUpperCase()} - ${graduationYear}`);
   }
 
   const roles = await (interaction.member as GuildMember).guild.roles.fetch();

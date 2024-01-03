@@ -11,7 +11,5 @@ export interface Messages {
         familyNamePlaceholder: string;
         graduationYearLabel: string;
         graduationYearPlaceholder: string;
-        educationLabel: string;
-        educationPlaceholder: string;
     };
 }
