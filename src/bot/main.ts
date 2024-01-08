@@ -63,11 +63,12 @@ const onMessageReaction = async (
  */
 const start = async (): Promise<void> => {
   // Get .env variables
+  const botToken = process.env.BOT_TOKEN;
   const guildId = process.env.GUILD_ID;
   const rulesChannelId = process.env.RULES_CHANNEL_ID;
-  const botToken = process.env.BOT_TOKEN;
+  const baseRoleId = process.env.BASE_ROLE_ID;
 
-  if (!guildId || !rulesChannelId || !botToken) {
+  if (!botToken || !guildId || !rulesChannelId || !baseRoleId) {
     console.error('You must fill all the fields in the .env file.');
     return;
   }
@@ -229,8 +230,8 @@ const start = async (): Promise<void> => {
         }
 
         // "Register" modal submit
-        if (interaction.isModalSubmit() && interaction.id === 'registerModal') {
-          await onModalSubmit(interaction, messages.role);
+        if (interaction.isModalSubmit() && interaction.customId === 'registerModal') {
+          await onModalSubmit(interaction, baseRoleId);
           await interaction.reply({ content: messages.welcome, ephemeral: true });
         }
       } catch (err) {
@@ -241,7 +242,6 @@ const start = async (): Promise<void> => {
       }
     });
 
-    // https://discordjs.guide/popular-topics/reactions.html#listening-for-reactions-on-old-messages
     bot.on(Events.MessageReactionAdd, (reaction, user) => onMessageReaction(reaction, user, true));
     bot.on(
       Events.MessageReactionRemove,
