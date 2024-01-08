@@ -59,6 +59,10 @@ class Pole {
       await category.children.create({
         name: `${emoji}｜blabla`,
       });
+      await category.children.create({
+        type: ChannelType.GuildVoice,
+        name: `${emoji}｜pole-${name.toLowerCase().replace(' ', '-')}`,
+      });
     }
 
     // Change its permission
