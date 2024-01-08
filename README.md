@@ -40,18 +40,10 @@ exist, and if the bot gives the role2 role to the user, the bot-role must be abo
 ![Role list](assets/role-list.png)
 
 ### Permissions
-This bot need the following permissions:
-- General
-  - Manage Roles (to add a role to a user)
-  - Manage Nicknames (to update users' nickname)
-  - Read Messages/View Channels (to check if the welcome message has already been sent)
-- Text Permissions
-  - Send Messages
-  - Embed Links
-  - Read Message History (to retrieve previous message of the channel where to write the welcome message if needed)
+This bot need the Administrator permission in order to be able to manage the whole server, even the private channels.
 
 It can be added by accessing this URL:
-[https://discord.com/api/oauth2/authorize?client_id=1035919632810381442&permissions=402738176&scope=bot](https://discord.com/api/oauth2/authorize?client_id=1035919632810381442&permissions=402738176&scope=bot)
+[https://discord.com/api/oauth2/authorize?client_id=1035919632810381442&permissions=8&scope=bot](https://discord.com/api/oauth2/authorize?client_id=1035919632810381442&permissions=8&scope=bot)
 
 It will ask you on which server you want to set the bot. Be sure to have the appropriate permissions to do so.
 
