@@ -126,6 +126,21 @@ class Pole {
     const bot = Bot.get();
     const guild = await bot.guilds.fetch(process.env.GUILD_ID as string);
 
+    // Add thematic emoji to the reaction channel
+    const pole = await db.getPole(this.id);
+    if (!pole) {
+      return 'Unable to find pole.';
+    }
+    const reactionChannel = await bot.channels.fetch(pole.rolesChannelId);
+    if (!reactionChannel?.isTextBased()) {
+      return 'The pole must be a text channel.';
+    }
+    const message = (await reactionChannel.messages.fetch()).at(0);
+    if (!message) {
+      return 'Unable to find a message in the pole reaction channel.';
+    }
+    await message?.react(emoji);
+
     // Create the role if it does not exists
     const roleName = `${emoji} ${name}`;
     let role = (await guild.roles.fetch()).find((r) => r.name === roleName);
@@ -139,7 +154,6 @@ class Pole {
     let channel = _channel;
     if (!channel) {
       // If the role channel does not exists, create the channels
-      const pole = await db.getPole(this.id);
       const poleChannel = await guild.channels.fetch(pole!.rolesChannelId);
 
       // Create the text channel
@@ -155,21 +169,6 @@ class Pole {
         type: ChannelType.GuildVoice,
       });
     }
-
-    // Add thematic emoji to the reaction channel
-    const pole = await db.getPole(this.id);
-    if (!pole) {
-      return 'Unable to find pole.';
-    }
-    const reactionChannel = await bot.channels.fetch(pole.rolesChannelId);
-    if (!reactionChannel?.isTextBased()) {
-      return 'The pole must be a text channel.';
-    }
-    const message = (await reactionChannel.messages.fetch()).at(0);
-    if (!message) {
-      return 'Unable to find a message in the pole reaction channel.';
-    }
-    await message?.react(emoji);
 
     // Add to the database
     const thematic = new Thematic(
