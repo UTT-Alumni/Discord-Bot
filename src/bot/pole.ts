@@ -139,7 +139,7 @@ class Pole {
     if (!message) {
       return 'Unable to find a message in the pole reaction channel.';
     }
-    await message?.react(emoji);
+    await message.react(emoji);
 
     // Create the role if it does not exists
     const roleName = `${emoji} ${name}`;

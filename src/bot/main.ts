@@ -186,10 +186,10 @@ const start = async (): Promise<void> => {
                 if (!(channel instanceof TextChannel)) {
                   error = 'The specified channel is not a text channel.';
                 } else {
-                  error = await thematic?.addProject(name, channel);
+                  error = await thematic.addProject(name, channel);
                 }
               } else {
-                error = await thematic?.addProject(name);
+                error = await thematic.addProject(name);
               }
 
               await interaction.reply({ content: error || ':white_check_mark: Project added.', ephemeral: true });
