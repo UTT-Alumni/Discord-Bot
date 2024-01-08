@@ -6,7 +6,6 @@ import {
   ButtonStyle,
   Events,
   TextChannel,
-  ChatInputCommandInteraction,
   User,
   PartialUser,
   MessageReaction,
@@ -111,7 +110,7 @@ const start = async (): Promise<void> => {
     bot.on(Events.InteractionCreate, async (interaction): Promise<void> => {
       try {
         // Bot commands
-        if (interaction instanceof ChatInputCommandInteraction) {
+        if (interaction.isChatInputCommand()) {
           // Check if the user has the authorization to use the commands
           const guild = await bot.guilds.fetch(guildId);
           const member = await guild.members.cache.find((m) => m.id === interaction.user.id);
