@@ -11,6 +11,7 @@ import {
   PartialUser,
   MessageReaction,
   PartialMessageReaction,
+  TextBasedChannel,
 } from 'discord.js';
 
 import {
@@ -210,9 +211,37 @@ const start = async (): Promise<void> => {
           if (interaction.commandName === 'remove-thematic') {
             const poleName = interaction.options.getString('pole');
             const thematicName = interaction.options.getString('thematic');
+            let error;
 
             if (poleName && thematicName) {
-              const error = await db.deleteThematic(poleName, thematicName);
+              // Get pole
+              const pole = await db.getPoleByName(poleName);
+              if (!pole) {
+                error = 'Unable to find the pole.';
+              } else {
+                // Get thematic
+                const thematic = await db.getThematicByName(pole.id, thematicName);
+
+                if (!thematic) {
+                  error = 'Unable to find the thematic.';
+                } else {
+                  // Delete from database
+                  error = await db.deleteThematic(poleName, thematicName);
+
+                  // Remove reaction
+                  const rolesChannel = (
+                    await guild.channels.fetch(pole.rolesChannelId)
+                  ) as TextBasedChannel;
+                  const reactions = (await rolesChannel.messages.fetch()).at(0)?.reactions.cache;
+                  const reaction = reactions?.find((r) => r.emoji.toString() === thematic.emoji);
+                  await reaction?.remove();
+
+                  // Delete role
+                  const role = await guild.roles.fetch(thematic.roleId);
+                  role?.delete();
+                }
+              }
+
               await interaction.reply({ content: error || ':wastebasket: Thematic successfully deleted.', ephemeral: true });
             }
           }
