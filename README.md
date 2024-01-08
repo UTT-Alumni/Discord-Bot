@@ -69,7 +69,7 @@ StartLimitIntervalSec=0
 Type=simple
 Restart=always
 RestartSec=1
-ExecStart=cd /path/to/boarding-duck/ && npm run start:setup
+ExecStart=npm run start:setup --prefix /path/to/boarding-duck/
 
 [Install]
 WantedBy=multi-user.target
