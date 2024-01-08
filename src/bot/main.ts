@@ -67,8 +67,9 @@ const start = async (): Promise<void> => {
   const guildId = process.env.GUILD_ID;
   const rulesChannelId = process.env.RULES_CHANNEL_ID;
   const baseRoleId = process.env.BASE_ROLE_ID;
+  const adminRoleId = process.env.ADMIN_ROLE_ID;
 
-  if (!botToken || !guildId || !rulesChannelId || !baseRoleId) {
+  if (!botToken || !guildId || !rulesChannelId || !baseRoleId || !adminRoleId) {
     console.error('You must fill all the fields in the .env file.');
     return;
   }
@@ -110,6 +111,17 @@ const start = async (): Promise<void> => {
       try {
         // Bot commands
         if (interaction instanceof ChatInputCommandInteraction) {
+          // Check if the user has the authorization to use the commands
+          const guild = await bot.guilds.fetch(guildId);
+          const member = await guild.members.cache.find((m) => m.id === interaction.user.id);
+          const isAdmin = member?.roles.cache.has(adminRoleId);
+
+          if (!isAdmin) {
+            console.warn(`${interaction.user.globalName} tried to send a command but is not administrator.`);
+            await interaction.reply({ content: 'You are not allowed to send commands.', ephemeral: true });
+            return;
+          }
+
           // Pole command
           if (interaction.commandName === 'pole') {
             const name = interaction.options.getString('name');

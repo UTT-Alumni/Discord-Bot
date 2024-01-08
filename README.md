@@ -28,6 +28,7 @@ To set up the bot :
   - CLIENT_ID (only needed if you want to deploy commands): the client id of your bot
   - RULES_CHANNEL_ID: the channel where the bot displays the rules
   - BASE_ROLE_ID: the role to add to the user once he accepts the rules and submits the modal
+  - ADMIN_ROLE_ID: users with this role will be allowed to send commands
 
 ### Discord server settings
 This bot gives permissions to other users. Discord has a non-intuitive way of allowing permissions. The role
