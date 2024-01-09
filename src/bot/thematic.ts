@@ -27,16 +27,17 @@ class Thematic {
         (await db.getThematicById(this.id))!.channelId,
       )) as TextChannel;
 
+      const channelName = name.replace(/[ '"]/g, '-').toLowerCase()
       channel = await thematicChannel.parent?.children.create({
-        name: `${thematicEmoji}｜${name}`,
+        name: `${thematicEmoji}｜${channelName}`,
       }) as TextChannel;
 
-      // Set the position just below the thematic channel)
-      channel.setPosition(thematicChannel.position + 1);
+      // Set the position just below the thematic channel
+      await channel.setPosition(thematicChannel.position + 1);
     }
 
     // Set permissions for the channel to be visible from users with thematic role only
-    this.setChannelVisibility(channel);
+    await this.setChannelPermission(channel);
 
     // Add to the database
     await db.createProject(this.id, name, channel.id);
@@ -44,14 +45,10 @@ class Thematic {
     return null;
   };
 
-  public setChannelVisibility = async (channel: TextChannel) => {
+  public setChannelPermission = async (channel: TextChannel) => {
     const roleId = await db.getThematicRoleId(this.id);
     if (!roleId) {
       return 'Unable to find thematic.';
-    }
-    const role = await channel.guild.roles.fetch(roleId);
-    if (!role) {
-      return 'Unable to find thematic role.';
     }
 
     // Retrieve voice channel
@@ -63,13 +60,19 @@ class Thematic {
       channels.push(voiceChannel);
     }
 
-    channels.forEach((c) => {
-      c.permissionOverwrites.delete(process.env.BASE_ROLE_ID as string);
-      c.permissionOverwrites.create(channel.guild.roles.everyone, { ViewChannel: false });
-      c.permissionOverwrites.create(role, { ViewChannel: true });
-    });
-
-    return null;
+    for (const c of channels) {
+      const channelWithoutBaseRole = await c.permissionOverwrites.delete(process.env.BASE_ROLE_ID as string);
+      await new Promise(r => setTimeout(r, 200));
+      const channelWithoutEveryone = await channelWithoutBaseRole.permissionOverwrites.create(channelWithoutBaseRole.guild.roles.everyone, { ViewChannel: false });
+      await new Promise(r => setTimeout(r, 200));
+      const role = await channelWithoutEveryone.guild.roles.fetch(roleId);
+      if (!role) {
+        console.log(`Role ${roleId} not found in guild`)
+      } else {
+        await channelWithoutEveryone.permissionOverwrites.create(role, { ViewChannel: true });
+        console.log(`Permission ${role.name} set for ${c.name} [${c.id}] (${c.type})`)
+      }
+    }
   };
 }
 

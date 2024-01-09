@@ -1,5 +1,5 @@
-import { promises as fs } from 'node:fs';
-import 'dotenv/config';
+import { promises as fs } from "node:fs";
+import "dotenv/config";
 import {
   ActionRowBuilder,
   ButtonBuilder,
@@ -10,22 +10,22 @@ import {
   PartialUser,
   MessageReaction,
   PartialMessageReaction,
-  TextBasedChannel,
-} from 'discord.js';
+  TextBasedChannel
+} from "discord.js";
 
 import {
   createModal,
-  onModalSubmit,
-} from './userInfoModal';
+  onModalSubmit
+} from "./userInfoModal";
 
-import Pole from './pole';
-import Bot from './bot';
-import * as db from './database';
+import Pole from "./pole";
+import Bot from "./bot";
+import * as db from "./database";
 
 const onMessageReaction = async (
   reaction: MessageReaction | PartialMessageReaction,
   user: User | PartialUser,
-  add: boolean,
+  add: boolean
 ) => {
   // If the reaction data we have is partial, then fetch it
   if (reaction.partial) {
@@ -52,7 +52,7 @@ const onMessageReaction = async (
         member.roles.remove(thematic?.roleId);
       }
 
-      console.log(`Role ${thematic?.name} (${pole.name} pole) ${add ? 'added' : 'removed'} to ${user.displayName}.`);
+      console.log(`Role ${thematic?.name} (${pole.name} pole) ${add ? "added" : "removed"} to ${user.displayName}.`);
     }
   }
 };
@@ -70,12 +70,12 @@ const start = async (): Promise<void> => {
   const adminRoleId = process.env.ADMIN_ROLE_ID;
 
   if (!botToken || !guildId || !rulesChannelId || !baseRoleId || !adminRoleId) {
-    console.error('You must fill all the fields in the .env file.');
+    console.error("You must fill all the fields in the .env file.");
     return;
   }
 
   // Get messages from config file
-  const messages = JSON.parse(await fs.readFile('messages.json', 'utf8'));
+  const messages = JSON.parse(await fs.readFile("messages.json", "utf8"));
 
   try {
     const bot = Bot.get();
@@ -89,20 +89,20 @@ const start = async (): Promise<void> => {
       const channelMessages = await channel.messages.fetch();
       console.info(`Fetch ${channelMessages.size} messages on channel ${rulesChannelId}.`);
       if (channelMessages.size > 0) {
-        console.info('Discord server already set with a welcome message.');
+        console.info("Discord server already set with a welcome message.");
       } else {
-        console.info('Sending the welcome message to the Discord channel.');
+        console.info("Sending the welcome message to the Discord channel.");
         // Sends custom message mentioning the user and adds rules
         const row = new ActionRowBuilder()
           .addComponents(
             new ButtonBuilder()
-              .setCustomId('primary')
+              .setCustomId("primary")
               .setLabel(messages.accept)
-              .setStyle(ButtonStyle.Primary),
+              .setStyle(ButtonStyle.Primary)
           ) as ActionRowBuilder<ButtonBuilder>;
         await channel.send({
           content: messages.rules,
-          components: [row],
+          components: [row]
         });
       }
     });
@@ -111,28 +111,31 @@ const start = async (): Promise<void> => {
       try {
         // Bot commands
         if (interaction.isChatInputCommand()) {
+          await interaction.deferReply({ ephemeral: true });
           // Check if the user has the authorization to use the commands
           const guild = await bot.guilds.fetch(guildId);
-          const member = await guild.members.cache.find((m) => m.id === interaction.user.id);
+          const member = guild.members.cache.find((m) => m.id === interaction.user.id);
           const isAdmin = member?.roles.cache.has(adminRoleId);
+
+          console.log(`Received command ${interaction.commandName}`);
 
           if (!isAdmin) {
             console.warn(`${interaction.user.globalName} tried to send a command but is not administrator.`);
-            await interaction.reply({ content: 'You are not allowed to send commands.', ephemeral: true });
+            await interaction.editReply("You are not allowed to send commands.");
             return;
           }
 
           // Pole command
-          if (interaction.commandName === 'pole') {
-            const name = interaction.options.getString('name');
-            const emoji = interaction.options.getString('emoji');
-            const channel = interaction.options.getChannel('channel');
+          if (interaction.commandName === "pole") {
+            const name = interaction.options.getString("name");
+            const emoji = interaction.options.getString("emoji");
+            const channel = interaction.options.getChannel("channel");
 
             if (name && emoji) {
               let error;
               if (channel) {
                 if (!(channel instanceof TextChannel)) {
-                  error = 'The specified channel is not a text channel.';
+                  error = "The specified channel is not a text channel.";
                 } else {
                   await Pole.addPole(name, emoji, channel);
                 }
@@ -140,89 +143,101 @@ const start = async (): Promise<void> => {
                 await Pole.addPole(name, emoji);
               }
 
-              await interaction.reply({ content: error || ':white_check_mark: Pole added.', ephemeral: true });
+              await interaction.editReply(error || ":white_check_mark: Pole added.");
+            } else {
+              await interaction.editReply("A name and an emoji must be provided");
             }
+            return;
           }
 
           // Thematic command
-          if (interaction.commandName === 'thematic') {
-            const poleName = interaction.options.getString('pole');
-            const name = interaction.options.getString('name');
-            const emoji = interaction.options.getString('emoji');
-            const channel = interaction.options.getChannel('channel');
+          if (interaction.commandName === "thematic") {
+            const poleName = interaction.options.getString("pole");
+            const name = interaction.options.getString("name");
+            const emoji = interaction.options.getString("emoji");
+            const channel = interaction.options.getChannel("channel");
 
             if (poleName && name && emoji) {
               let error;
               const pole = await Pole.getPole(poleName);
               if (!pole) {
-                error = 'Unable to find pole.';
+                error = "Unable to find pole.";
               } else if (channel) {
                 if (!(channel instanceof TextChannel)) {
-                  error = 'The specified channel is not a text channel.';
+                  error = "The specified channel is not a text channel.";
                 } else {
                   error = await pole.addThematic(name, emoji, channel);
                 }
               } else {
                 error = await pole.addThematic(name, emoji);
               }
-
-              await interaction.reply({ content: error || ':white_check_mark: Thematic added.', ephemeral: true });
+              await interaction.editReply(error || ":white_check_mark: Thematic added.");
+            } else {
+              await interaction.editReply(
+                "A pole name, a thematic name and an emoji must be provided"
+              );
             }
+            return;
           }
 
           // Project command
-          if (interaction.commandName === 'project') {
-            const poleName = interaction.options.getString('pole');
-            const thematicName = interaction.options.getString('thematic');
-            const name = interaction.options.getString('name');
-            const channel = interaction.options.getChannel('channel');
+          if (interaction.commandName === "project") {
+            const poleName = interaction.options.getString("pole");
+            const thematicName = interaction.options.getString("thematic");
+            const name = interaction.options.getString("name");
+            const channel = interaction.options.getChannel("channel");
 
             if (poleName && thematicName && name) {
               let error;
               const thematic = await (await Pole.getPole(poleName))?.getThematic(thematicName);
               if (!thematic) {
-                error = 'Unable to find the pole or the thematic.';
+                error = "Unable to find the pole or the thematic.";
               } else if (channel) {
                 if (!(channel instanceof TextChannel)) {
-                  error = 'The specified channel is not a text channel.';
+                  error = "The specified channel is not a text channel.";
                 } else {
                   error = await thematic.addProject(name, channel);
                 }
               } else {
                 error = await thematic.addProject(name);
               }
-
-              await interaction.reply({ content: error || ':white_check_mark: Project added.', ephemeral: true });
+              await interaction.editReply(error || ":white_check_mark: Project added.");
+            } else {
+              await interaction.editReply("A thematic name, a project name and an emoji must be provided");
             }
+            return;
           }
 
           // "Remove pole" command
-          if (interaction.commandName === 'remove-pole') {
-            const poleName = interaction.options.getString('pole');
+          if (interaction.commandName === "remove-pole") {
+            const poleName = interaction.options.getString("pole");
 
             if (poleName) {
               const error = await db.deletePole(poleName);
-              await interaction.reply({ content: error || ':wastebasket: Pole successfully deleted.', ephemeral: true });
+              await interaction.editReply(error || ":wastebasket: Pole successfully deleted.");
+            } else {
+              await interaction.editReply("A pole name must be provided");
             }
+            return;
           }
 
           // "Remove thematic" command
-          if (interaction.commandName === 'remove-thematic') {
-            const poleName = interaction.options.getString('pole');
-            const thematicName = interaction.options.getString('thematic');
+          if (interaction.commandName === "remove-thematic") {
+            const poleName = interaction.options.getString("pole");
+            const thematicName = interaction.options.getString("thematic");
             let error;
 
             if (poleName && thematicName) {
               // Get pole
               const pole = await db.getPoleByName(poleName);
               if (!pole) {
-                error = 'Unable to find the pole.';
+                error = "Unable to find the pole.";
               } else {
                 // Get thematic
                 const thematic = await db.getThematicByName(pole.id, thematicName);
 
                 if (!thematic) {
-                  error = 'Unable to find the thematic.';
+                  error = "Unable to find the thematic.";
                 } else {
                   // Delete from database
                   error = await db.deleteThematic(poleName, thematicName);
@@ -241,25 +256,32 @@ const start = async (): Promise<void> => {
                 }
               }
 
-              await interaction.reply({ content: error || ':wastebasket: Thematic successfully deleted.', ephemeral: true });
+              await interaction.editReply(error || ":wastebasket: Thematic successfully deleted.");
+            } else {
+              await interaction.editReply("A pole name and a thematic name must be provided");
             }
+            return;
           }
 
           // "Remove project" command
-          if (interaction.commandName === 'remove-project') {
-            const poleName = interaction.options.getString('pole');
-            const thematicName = interaction.options.getString('thematic');
-            const projectName = interaction.options.getString('project');
+          if (interaction.commandName === "remove-project") {
+            const poleName = interaction.options.getString("pole");
+            const thematicName = interaction.options.getString("thematic");
+            const projectName = interaction.options.getString("project");
 
             if (poleName && thematicName && projectName) {
               const error = await db.deleteProject(poleName, thematicName, projectName);
-              await interaction.reply({ content: error || ':wastebasket: Project successfully deleted.', ephemeral: true });
+              await interaction.editReply(error || ":wastebasket: Project successfully deleted.")
+            } else {
+              await interaction.editReply("A pole name, a thematic name and a project name must be provided");
             }
+            return;
           }
 
           // Get command
-          if (interaction.commandName === 'get') {
-            await interaction.reply({ content: await Pole.getFormatted(bot), ephemeral: true });
+          if (interaction.commandName === "get") {
+            await interaction.editReply(await Pole.getFormatted(bot));
+            return;
           }
         }
 
@@ -267,25 +289,24 @@ const start = async (): Promise<void> => {
         if (interaction.channelId === rulesChannelId && interaction.isButton()) {
           const modal = await createModal(messages.modal);
           await interaction.showModal(modal);
+          return;
         }
 
         // "Register" modal submit
-        if (interaction.isModalSubmit() && interaction.customId === 'registerModal') {
+        if (interaction.isModalSubmit() && interaction.customId === "registerModal") {
           await onModalSubmit(interaction, baseRoleId);
           await interaction.reply({ content: messages.welcome, ephemeral: true });
+          return;
         }
       } catch (err) {
-        console.error(err);
-        if (interaction.isButton() || interaction.isModalSubmit() || interaction.isCommand()) {
-          await interaction.reply({ content: messages.error, ephemeral: true });
-        }
+        console.error(`Error while listening to interaction ${interaction.type.toString()}: ${err}`);
       }
     });
 
     bot.on(Events.MessageReactionAdd, (reaction, user) => onMessageReaction(reaction, user, true));
     bot.on(
       Events.MessageReactionRemove,
-      (reaction, user) => onMessageReaction(reaction, user, false),
+      (reaction, user) => onMessageReaction(reaction, user, false)
     );
 
     await bot.login(botToken);
@@ -295,5 +316,5 @@ const start = async (): Promise<void> => {
 };
 
 start().then(() => {
-  console.info('UTT Alumni Discord bot started.');
+  console.info("UTT Alumni Discord bot started.");
 });
