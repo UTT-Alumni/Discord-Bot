@@ -1,12 +1,16 @@
 FROM node:18
 
-COPY ./ /home/boarding-duck
+WORKDIR /home/boarding-duck
 
 RUN apt-get update -yq \
 && apt-get autoremove \
 && apt-get clean -y \
-&& rm -rf /var/lib/apt/lists/* \
-&& cd /home/boarding-duck \
-&& npm install 
+&& rm -rf /var/lib/apt/lists/*
 
-CMD ["npm","--prefix","/home/boarding-duck","start:setup"]
+COPY ./package*.json ./
+
+RUN npm install
+
+COPY . .
+
+CMD ["npm", "run", "start:setup"]
