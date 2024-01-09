@@ -61,7 +61,7 @@ class Pole {
       });
       await category.children.create({
         type: ChannelType.GuildVoice,
-        name: `${emoji}｜pole-${name.toLowerCase().replace(' ', '-')}`,
+        name: `${emoji}｜pole-${name.replace(/[ '"]/g, '-').toLowerCase()}`,
       });
     }
 
@@ -141,7 +141,7 @@ class Pole {
     }
     await message.react(emoji);
 
-    // Create the role if it does not exists
+    // Create the role if it does not exist
     const roleName = `${emoji} ${name}`;
     let role = (await guild.roles.fetch()).find((r) => r.name === roleName);
     if (!role) {
@@ -153,18 +153,19 @@ class Pole {
     // Check if the channel exists
     let channel = _channel;
     if (!channel) {
-      // If the role channel does not exists, create the channels
+      // If the role channel does not exist, create the channels
       const poleChannel = await guild.channels.fetch(pole!.rolesChannelId);
 
+      const channelName = `📂${emoji}｜${name}`.replace(/[ '"]/g, '-').toLowerCase()
       // Create the text channel
       channel = await guild.channels.create({
-        name: `📂${emoji}｜${name}`,
+        name: channelName,
         parent: poleChannel!.parent as CategoryChannel,
       });
       // Create the voice channel
       await guild.channels.create({
-        // Use the same name than the text channel name
-        name: `📂${emoji}｜${name}`.replace(/ '"/g, '-').toLowerCase(),
+        // Use the same name as the text channel name
+        name: channelName,
         parent: poleChannel!.parent as CategoryChannel,
         type: ChannelType.GuildVoice,
       });
@@ -176,7 +177,7 @@ class Pole {
     );
 
     // Change permissions for the channel to be visible from users with associated role only
-    thematic.setChannelVisibility(channel);
+    await thematic.setChannelPermission(channel);
 
     return null;
   };
