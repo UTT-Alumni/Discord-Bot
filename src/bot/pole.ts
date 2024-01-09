@@ -164,7 +164,7 @@ class Pole {
       // Create the voice channel
       await guild.channels.create({
         // Use the same name than the text channel name
-        name: `📂${emoji}｜${name}`.replace(' ', '-').toLowerCase(),
+        name: `📂${emoji}｜${name}`.replace(/ '"/g, '-').toLowerCase(),
         parent: poleChannel!.parent as CategoryChannel,
         type: ChannelType.GuildVoice,
       });
