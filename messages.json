@@ -1,8 +1,4 @@
 {
-  "token": "my_token",
-  "server": "my_server_id",
-  "channel": "my_channel_id",
-  "role": "my_role_id",
   "rules": "Rules message",
   "accept": "Accept",
   "welcome": "Welcome !",
@@ -14,8 +10,6 @@
     "familyNameLabel": "Family name",
     "familyNamePlaceholder": "Your family name",
     "graduationYearLabel": "Graduation year",
-    "graduationYearPlaceholder": "Your graduation year",
-    "educationLabel": "Education",
-    "educationPlaceholder": "Your education..."
+    "graduationYearPlaceholder": "Your graduation year"
   }
 }
